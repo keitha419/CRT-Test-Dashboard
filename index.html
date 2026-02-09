@@ -6,140 +6,548 @@
 <title>Test Automation Dashboard — UChicago Advancement</title>
 <style>
 :root {
-  --maroon:#800000; --maroon-light:#9a1c1c; --maroon-dark:#4d0000;
-  --goldenrod:#EAAA00; --goldenrod-dark:#CC8A00; --goldenrod-light:#F3D03E;
-  --forest:#275D38; --lake:#007396; --violet:#59315F; --terracotta:#DE7C00;
-  --ivy:#789D4A; --brick:#A4343A; --greystone:#767676;
-  --bg:#f7f5f2; --bg-card:#fff; --text-dark:#2c2c2c; --text-mid:#555; --text-light:#888; --border:#e0ddd8;
+  --maroon: #800000;
+  --maroon-light: #9a1c1c;
+  --maroon-dark: #4d0000;
+  --goldenrod: #EAAA00;
+  --goldenrod-dark: #CC8A00;
+  --forest: #275D38;
+  --lake: #007396;
+  --violet: #59315F;
+  --terracotta: #DE7C00;
+  --ivy: #789D4A;
+  --brick: #A4343A;
+  --greystone: #767676;
+  --bg: #f7f5f2;
+  --bg-card: #ffffff;
+  --text-dark: #2c2c2c;
+  --text-mid: #555555;
+  --text-light: #888888;
+  --border: #e0ddd8;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text-dark);min-height:100vh;}
 
-/* Header */
-.header{background:var(--maroon);color:#fff;padding:20px 32px 16px;position:relative;}
-.header::after{content:'';position:absolute;bottom:0;left:32px;right:32px;height:3px;background:var(--goldenrod);}
-.header-top{display:flex;justify-content:space-between;align-items:flex-start;}
-.header-tag{font-size:10px;font-weight:600;letter-spacing:2px;color:var(--goldenrod);text-transform:uppercase;margin-bottom:4px;}
-.header h1{font-family:'Georgia',serif;font-size:24px;font-weight:700;}
-.header-sub{font-size:12px;color:rgba(255,255,255,0.65);margin-top:2px;}
-.header-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
-.header-actions input{width:340px;padding:7px 10px;border-radius:4px;border:none;font-size:10px;font-family:monospace;background:rgba(255,255,255,0.15);color:#fff;}
-.header-actions input::placeholder{color:rgba(255,255,255,0.45);}
-.header-actions input:focus{outline:none;background:rgba(255,255,255,0.25);}
-.btn{padding:7px 14px;border:none;border-radius:4px;font-weight:600;cursor:pointer;font-size:12px;transition:background 0.2s;}
-.btn-gold{background:var(--goldenrod);color:var(--maroon);}
-.btn-gold:hover{background:var(--goldenrod-dark);}
-.btn-config{background:rgba(255,255,255,0.15);color:#fff;font-size:11px;}
-.btn-config:hover{background:rgba(255,255,255,0.25);}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Config */
-#configPanel{display:none;background:rgba(0,0,0,0.15);padding:12px 32px;border-bottom:1px solid rgba(255,255,255,0.1);}
-#configPanel.open{display:flex;gap:16px;align-items:center;background:var(--maroon-dark);}
-#configPanel label{color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;}
-#configPanel input{padding:6px 10px;border-radius:4px;border:none;font-size:12px;width:80px;background:rgba(255,255,255,0.15);color:#fff;}
-#configPanel input:focus{outline:none;background:rgba(255,255,255,0.25);}
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
 
-.content{padding:24px 32px;}
+/* ── HEADER ── */
+.header {
+  background: var(--maroon);
+  color: #fff;
+  padding: 20px 32px 16px;
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 32px; right: 32px;
+  height: 3px;
+  background: var(--goldenrod);
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.header-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--goldenrod);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.header h1 {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+.header-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 2px;
+}
+.header-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12px;
+}
+.btn-gold { background: var(--goldenrod); color: var(--maroon); }
+.btn-gold:hover { background: var(--goldenrod-dark); }
+.btn-config { background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; }
+.btn-config:hover { background: rgba(255,255,255,0.25); }
 
-/* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-.kpi{background:var(--bg-card);border-radius:8px;padding:16px 18px;border:1px solid var(--border);position:relative;overflow:hidden;}
-.kpi .bar{position:absolute;top:0;left:0;right:0;height:4px;}
-.kpi .lbl{font-size:11px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
-.kpi .val{font-size:32px;font-weight:700;font-family:'Georgia',serif;}
-.kpi .sub{font-size:11px;color:var(--text-light);margin-top:2px;}
+/* ── CONFIG PANEL ── */
+#configPanel {
+  display: none;
+  background: var(--maroon-dark);
+  padding: 12px 32px;
+}
+#configPanel.open {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+#configPanel label {
+  color: rgba(255,255,255,0.7);
+  font-size: 11px;
+  font-weight: 600;
+}
+#configPanel input {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  width: 80px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
 
-/* Progress */
-.progress-panel{background:var(--bg-card);border-radius:8px;padding:18px 20px;border:1px solid var(--border);margin-bottom:20px;}
-.progress-panel .title{font-size:13px;font-weight:700;color:var(--maroon);margin-bottom:12px;}
-.prog-row{margin-bottom:10px;}
-.prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-mid);margin-bottom:4px;}
-.prog-track{height:20px;background:#f0ece6;border-radius:4px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:4px;transition:width .4s;}
+/* ── MAIN CONTENT ── */
+.content { padding: 24px 32px; }
 
-/* Category breakdown */
-.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
-.cat-panel{background:var(--bg-card);border-radius:8px;padding:18px 20px;border:1px solid var(--border);}
-.cat-panel .title{font-size:13px;font-weight:700;color:var(--maroon);margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:6px;}
-.cat-row{margin-bottom:10px;}
-.cat-lbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
-.cat-track{display:flex;height:14px;border-radius:4px;overflow:hidden;background:#f0ece6;}
-.cat-legend{display:flex;gap:14px;margin-top:12px;font-size:10px;color:var(--text-light);border-top:1px solid var(--border);padding-top:8px;}
-.cat-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle;}
+/* ── KPI CARDS ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.kpi .bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+}
+.kpi .lbl {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+.kpi .val {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: Georgia, serif;
+}
+.kpi .sub {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
 
-/* Scenario List */
-.list-section{background:var(--bg-card);border-radius:8px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px;}
-.list-toolbar{display:flex;gap:8px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.search-input{flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;background:var(--bg);}
-.search-input:focus{outline:none;border-color:var(--maroon);}
-.filter-btn{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--text-mid);transition:all .2s;}
-.filter-btn:hover{border-color:var(--maroon);color:var(--maroon);}
-.filter-btn.active{background:var(--maroon);color:#fff;border-color:var(--maroon);}
-.filter-btn .count{display:inline-block;background:rgba(0,0,0,0.1);border-radius:10px;padding:1px 6px;margin-left:4px;font-size:10px;}
-.filter-btn.active .count{background:rgba(255,255,255,0.25);}
+/* ── PROGRESS ── */
+.progress-panel {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.progress-panel .title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--maroon);
+  margin-bottom: 12px;
+}
+.prog-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-mid);
+  margin-bottom: 4px;
+}
+.prog-track {
+  height: 20px;
+  background: #f0ece6;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+.prog-legend {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-light);
+  display: flex;
+  gap: 16px;
+}
+.prog-legend i {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
 
-/* Table */
-.s-table{width:100%;border-collapse:collapse;}
-.s-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);background:#faf8f5;cursor:pointer;user-select:none;white-space:nowrap;}
-.s-table th:hover{color:var(--maroon);}
-.s-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid #f0ece6;vertical-align:middle;}
-.s-table tr:hover{background:#faf8f5;cursor:pointer;}
-.s-table tr.planned-row{background:#fef9eb;}
-.s-table tr.planned-row:hover{background:#fdf0d0;}
+/* ── CATEGORY PANELS ── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.cat-panel {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+}
+.cat-panel .title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--maroon);
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.cat-row { margin-bottom: 10px; }
+.cat-lbl {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.cat-track {
+  display: flex;
+  height: 14px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f0ece6;
+}
+.cat-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--text-light);
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.cat-legend i {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
 
-/* Badges */
-.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
-.badge-auto{background:#e8f5e9;color:var(--forest);}
-.badge-manual{background:#f0ece6;color:var(--greystone);}
-.badge-pending{background:#fef9eb;color:var(--goldenrod-dark);}
-.badge-planned{background:var(--goldenrod);color:var(--maroon);font-size:10px;padding:2px 8px;margin-left:6px;}
-.risk-dot{display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;font-size:11px;font-weight:700;color:#fff;}
-.risk-high{background:var(--brick);}
-.risk-med{background:var(--goldenrod-dark);}
-.risk-low{background:var(--ivy);}
+/* ── SCENARIO LIST ── */
+.list-section {
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.list-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  background: var(--bg);
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--maroon);
+}
+.filter-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--text-mid);
+}
+.filter-btn:hover {
+  border-color: var(--maroon);
+  color: var(--maroon);
+}
+.filter-btn.active {
+  background: var(--maroon);
+  color: #fff;
+  border-color: var(--maroon);
+}
+.filter-btn .ct {
+  display: inline-block;
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+  padding: 1px 6px;
+  margin-left: 4px;
+  font-size: 10px;
+}
+.filter-btn.active .ct {
+  background: rgba(255,255,255,0.25);
+}
 
-/* Detail View */
-.detail-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;justify-content:center;align-items:start;padding:40px;}
-.detail-overlay.open{display:flex;}
-.detail-card{background:#fff;border-radius:10px;width:720px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
-.detail-header{background:var(--maroon);color:#fff;padding:20px 24px;border-radius:10px 10px 0 0;position:relative;}
-.detail-header h2{font-family:'Georgia',serif;font-size:18px;padding-right:40px;}
-.detail-header .grp{font-size:11px;color:var(--goldenrod);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
-.detail-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:0.7;}
-.detail-close:hover{opacity:1;}
-.detail-body{padding:24px;}
-.detail-desc{font-size:14px;color:var(--text-mid);margin-bottom:20px;line-height:1.5;padding:12px 16px;background:#faf8f5;border-left:3px solid var(--maroon);border-radius:0 4px 4px 0;}
-.detail-section{margin-bottom:20px;}
-.detail-section h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--maroon);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
-.detail-steps{font-size:13px;line-height:1.7;color:var(--text-dark);white-space:pre-wrap;padding:12px 16px;background:#faf8f5;border-radius:6px;}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.detail-field{padding:10px 14px;background:#faf8f5;border-radius:6px;}
-.detail-field .df-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);margin-bottom:2px;}
-.detail-field .df-value{font-size:14px;font-weight:600;color:var(--text-dark);}
-.detail-field a{color:var(--lake);text-decoration:none;}
-.detail-field a:hover{text-decoration:underline;}
-.detail-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+/* ── TABLE ── */
+.s-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.s-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border);
+  background: #faf8f5;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.s-table th:hover { color: var(--maroon); }
+.s-table td {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0ece6;
+  vertical-align: middle;
+}
+.s-table tr:hover {
+  background: #faf8f5;
+  cursor: pointer;
+}
+.s-table tr.planned-row { background: #fef9eb; }
+.s-table tr.planned-row:hover { background: #fdf0d0; }
 
-/* Status bar */
-.status-bar{padding:12px 32px;background:#fef9eb;border-bottom:1px solid var(--border);font-size:12px;color:var(--goldenrod-dark);display:none;}
-.status-bar.show{display:block;}
-.status-bar.error{background:#fde8e8;color:var(--brick);}
-.loading{text-align:center;padding:60px;font-size:14px;color:var(--text-light);}
-.loading .spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--maroon);border-radius:50%;animation:spin .6s linear infinite;margin-bottom:12px;}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ── BADGES ── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-auto { background: #e8f5e9; color: var(--forest); }
+.badge-manual { background: #f0ece6; color: var(--greystone); }
+.badge-pending { background: #fef9eb; color: var(--goldenrod-dark); }
+.badge-planned {
+  background: var(--goldenrod);
+  color: var(--maroon);
+  font-size: 10px;
+  padding: 2px 8px;
+  margin-left: 6px;
+}
+.risk-dot {
+  display: inline-block;
+  width: 28px; height: 28px;
+  line-height: 28px;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.risk-high { background: var(--brick); }
+.risk-med { background: var(--goldenrod-dark); }
+.risk-low { background: var(--ivy); }
 
-.empty{text-align:center;padding:40px;color:var(--text-light);font-size:13px;}
+/* ── DETAIL OVERLAY ── */
+.detail-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  justify-content: center;
+  align-items: start;
+  padding: 40px;
+}
+.detail-overlay.open { display: flex; }
+.detail-card {
+  background: #fff;
+  border-radius: 10px;
+  width: 720px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.detail-header {
+  background: var(--maroon);
+  color: #fff;
+  padding: 20px 24px;
+  border-radius: 10px 10px 0 0;
+  position: relative;
+}
+.detail-header h2 {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  padding-right: 40px;
+}
+.detail-header .grp {
+  font-size: 11px;
+  color: var(--goldenrod);
+  margin-bottom: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.detail-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.detail-close:hover { opacity: 1; }
+.detail-body { padding: 24px; }
+.detail-desc {
+  font-size: 14px;
+  color: var(--text-mid);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  background: #faf8f5;
+  border-left: 3px solid var(--maroon);
+  border-radius: 0 4px 4px 0;
+}
+.detail-section { margin-bottom: 20px; }
+.detail-section h3 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--maroon);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.detail-steps {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-dark);
+  white-space: pre-wrap;
+  padding: 12px 16px;
+  background: #faf8f5;
+  border-radius: 6px;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.detail-field {
+  padding: 10px 14px;
+  background: #faf8f5;
+  border-radius: 6px;
+}
+.detail-field .df-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+.detail-field .df-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+.detail-field a { color: var(--lake); text-decoration: none; }
+.detail-field a:hover { text-decoration: underline; }
+.detail-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 
-/* Footer */
-.footer{padding:12px 32px;font-size:10px;color:var(--text-light);border-top:1px solid var(--border);display:flex;justify-content:space-between;}
+/* ── STATES ── */
+.loading {
+  text-align: center;
+  padding: 60px;
+  font-size: 14px;
+  color: var(--text-light);
+}
+.spinner {
+  display: inline-block;
+  width: 24px; height: 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--maroon);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-light);
+  font-size: 13px;
+}
+.error-msg {
+  text-align: center;
+  padding: 60px 32px;
+  font-size: 15px;
+  color: var(--brick);
+  font-weight: 600;
+}
+.footer {
+  padding: 12px 32px;
+  font-size: 10px;
+  color: var(--text-light);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
 
-@media print{.header-actions,.btn-config,#configPanel,.search-input,.filter-btn,.detail-overlay{display:none!important;}}
-@media(max-width:900px){.kpi-grid{grid-template-columns:1fr;}.cat-grid{grid-template-columns:1fr;}.detail-card{width:95%;}}
+@media print {
+  .header-actions, .btn-config, #configPanel, .search-input, .filter-btn, .detail-overlay { display: none !important; }
+}
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .cat-grid { grid-template-columns: 1fr; }
+  .detail-card { width: 95%; }
+}
 </style>
 </head>
 <body>
 
-<!-- Header -->
+<!-- HEADER -->
 <div class="header">
   <div class="header-top">
     <div>
@@ -148,30 +556,25 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <div class="header-sub">University of Chicago Advancement · Copado Robotic Testing (CRT)</div>
     </div>
     <div class="header-actions">
-      <input type="text" id="sheetUrl" placeholder="Google Sheet CSV URL (base, no gid)..." value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGV-kjbZw4zZrS-zS3HWuqDf-bGuy4Cgi84V10UR6Np6ZhHZ-S27hhHVgVlV82IIY0ltQ9LuCzZEf/pub?output=csv">
-      <button class="btn btn-gold" onclick="loadSheet()">↻ Load</button>
-      <button class="btn btn-gold" onclick="autoLoad()" style="background:var(--forest);color:#fff">▶ Auto</button>
-      <button class="btn btn-config" onclick="toggleConfig()">⚙</button>
+      <button class="btn btn-gold" onclick="loadData()">↻ Refresh</button>
+      <button class="btn btn-config" onclick="document.getElementById('configPanel').classList.toggle('open')">⚙</button>
     </div>
   </div>
 </div>
 
-<!-- Config -->
+<!-- CONFIG -->
 <div id="configPanel">
   <label>Baseline Goal:</label>
   <input type="number" id="cfgBaseline" value="60">
   <button class="btn btn-gold" onclick="renderAll()">Apply</button>
 </div>
 
-<!-- Status -->
-<div id="statusBar" class="status-bar"></div>
-
-<!-- Content -->
+<!-- CONTENT -->
 <div class="content" id="mainContent">
-  <div class="loading"><div class="spinner"></div><br>Enter your Google Sheet CSV URL and click Load</div>
+  <div class="loading"><div class="spinner"></div><br>Loading dashboard...</div>
 </div>
 
-<!-- Detail Overlay -->
+<!-- DETAIL OVERLAY -->
 <div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
   <div class="detail-card">
     <div class="detail-header">
@@ -184,409 +587,560 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </div>
 
 <script>
-/* ============================================================
-   CONFIG & STATE
-   ============================================================ */
-let DATA = [];
-let FILTERED = [];
-let ACTIVE_GROUP = 'All';
-let SEARCH = '';
-let SORT_COL = null;
-let SORT_DIR = 1;
+/* ================================================================
+   CONFIGURATION — Edit these values as needed
+   ================================================================ */
+var SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGV-kjbZw4zZrS-zS3HWuqDf-bGuy4Cgi84V10UR6Np6ZhHZ-S27hhHVgVlV82IIY0ltQ9LuCzZEf/pub?output=csv';
+var TAB_GIDS = ['0', '1486981684'];
 
-const GROUP_COLORS = {
-  "Alumni & Friends Portal":"#007396","Constituent Management":"#59315F",
-  "Gift Admin":"#275D38","Prospect Research":"#EAAA00","Events":"#DE7C00",
-  "Marketing & Communication":"#789D4A","Prospect Management/Gift Officer":"#A4343A"
+/* ================================================================
+   STATE
+   ================================================================ */
+var DATA = [];
+var FILTERED = [];
+var ACTIVE_GROUP = 'All';
+var SEARCH_TERM = '';
+var SORT_COL = null;
+var SORT_DIR = 1;
+
+var GROUP_COLORS = {
+  'Alumni & Friends Portal': '#007396',
+  'Constituent Management': '#59315F',
+  'Gift Admin': '#275D38',
+  'Prospect Research': '#EAAA00',
+  'Events': '#DE7C00',
+  'Marketing & Communication': '#789D4A',
+  'Prospect Management/Gift Officer': '#A4343A'
 };
-function gc(g){return GROUP_COLORS[g]||"#767676";}
 
-/* ============================================================
-   CSV PARSING
-   ============================================================ */
-function parseCSV(text){
-  const lines=[];let cur='',inQ=false,row=[];
-  for(let i=0;i<text.length;i++){
-    const c=text[i],n=text[i+1];
-    if(inQ){if(c==='"'&&n==='"'){cur+='"';i++;}else if(c==='"'){inQ=false;}else{cur+=c;}}
-    else{if(c==='"'){inQ=true;}else if(c===','){row.push(cur.trim());cur='';}else if(c==='\n'||(c==='\r'&&n==='\n')){if(c==='\r')i++;row.push(cur.trim());lines.push(row);row=[];cur='';}else{cur+=c;}}
+function gc(group) {
+  return GROUP_COLORS[group] || '#767676';
+}
+
+/* ================================================================
+   CSV PARSER
+   ================================================================ */
+function parseCSV(text) {
+  var lines = [];
+  var current = '';
+  var inQuotes = false;
+  var row = [];
+
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    var next = i + 1 < text.length ? text[i + 1] : '';
+
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        current += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        row.push(current.trim());
+        current = '';
+      } else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+        if (ch === '\r') i++;
+        row.push(current.trim());
+        lines.push(row);
+        row = [];
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
   }
-  if(cur||row.length){row.push(cur.trim());lines.push(row);}
+  if (current || row.length > 0) {
+    row.push(current.trim());
+    lines.push(row);
+  }
   return lines;
 }
 
-function csvToObjects(text){
-  const lines=parseCSV(text);
-  if(lines.length<2)return[];
-  const hdr=lines[0].map(h=>h.replace(/^\uFEFF/,'').trim());
-  const rows=[];
-  for(let i=1;i<lines.length;i++){
-    const r=lines[i];if(!r||r.every(c=>!c))continue;
-    const obj={};
-    hdr.forEach((h,j)=>{obj[h]=r[j]||'';});
+function csvToObjects(text) {
+  var lines = parseCSV(text);
+  if (lines.length < 2) return [];
+  var headers = [];
+  for (var h = 0; h < lines[0].length; h++) {
+    headers.push(lines[0][h].replace(/^\uFEFF/, '').trim());
+  }
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    var r = lines[i];
+    var empty = true;
+    for (var k = 0; k < r.length; k++) {
+      if (r[k]) { empty = false; break; }
+    }
+    if (empty) continue;
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) {
+      obj[headers[j]] = (j < r.length) ? r[j] : '';
+    }
     rows.push(obj);
   }
   return rows;
 }
 
-/* ============================================================
-   LOAD SHEET
-   ============================================================ */
-const SHEET_GIDS = ['0', '1486981684'];
-
-async function fetchCSV(url){
-  const methods=[
-    ()=>fetch(url),
-    ()=>fetch('https://corsproxy.io/?'+encodeURIComponent(url)),
-    ()=>fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)),
-  ];
-  for(let i=0;i<methods.length;i++){
-    try{
-      const resp=await methods[i]();
-      if(!resp.ok)throw new Error('HTTP '+resp.status);
-      const text=await resp.text();
-      if(!text||text.length<10)throw new Error('Empty');
-      return text;
-    }catch(e){if(i===methods.length-1)throw e;}
-  }
+/* ================================================================
+   DATA LOADING
+   ================================================================ */
+function tryFetch(url) {
+  return fetch(url).then(function(resp) {
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.text();
+  }).then(function(text) {
+    if (!text || text.length < 10) throw new Error('Empty');
+    return text;
+  });
 }
 
-async function loadSheet(){
-  const baseUrl=document.getElementById('sheetUrl').value.trim();
-  if(!baseUrl){showStatus('Please enter a Google Sheet CSV URL','error');return;}
-  document.getElementById('mainContent').innerHTML='<div class="loading"><div class="spinner"></div><br>Loading from Google Sheets ('+SHEET_GIDS.length+' tabs)...</div>';
+function tryProxy(url) {
+  return fetch('https://corsproxy.io/?' + encodeURIComponent(url)).then(function(resp) {
+    if (!resp.ok) throw new Error('Proxy HTTP ' + resp.status);
+    return resp.text();
+  }).then(function(text) {
+    if (!text || text.length < 10) throw new Error('Proxy empty');
+    return text;
+  });
+}
 
-  try{
-    let allRows=[];
-    for(const gid of SHEET_GIDS){
-      const url=baseUrl.includes('gid=')?baseUrl:baseUrl+(baseUrl.includes('?')?'&':'?')+'gid='+gid;
-      try{
-        const text=await fetchCSV(url);
-        const rows=csvToObjects(text);
-        allRows=allRows.concat(rows);
-      }catch(e){
-        console.warn('Could not load tab gid='+gid+': '+e.message);
-      }
+function tryProxy2(url) {
+  return fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url)).then(function(resp) {
+    if (!resp.ok) throw new Error('Proxy2 HTTP ' + resp.status);
+    return resp.text();
+  }).then(function(text) {
+    if (!text || text.length < 10) throw new Error('Proxy2 empty');
+    return text;
+  });
+}
+
+function fetchCSV(url) {
+  return tryFetch(url).catch(function() {
+    return tryProxy(url);
+  }).catch(function() {
+    return tryProxy2(url);
+  });
+}
+
+function loadData() {
+  document.getElementById('mainContent').innerHTML = '<div class="loading"><div class="spinner"></div><br>Loading...</div>';
+
+  var allRows = [];
+  var fetches = [];
+
+  for (var i = 0; i < TAB_GIDS.length; i++) {
+    var url = SHEET_BASE + '&gid=' + TAB_GIDS[i];
+    fetches.push(
+      fetchCSV(url).then(function(text) {
+        var rows = csvToObjects(text);
+        for (var r = 0; r < rows.length; r++) {
+          allRows.push(rows[r]);
+        }
+      }).catch(function() {
+        // Tab failed, continue
+      })
+    );
+  }
+
+  Promise.all(fetches).then(function() {
+    // If no rows from tabs, try base URL
+    if (allRows.length === 0) {
+      return fetchCSV(SHEET_BASE).then(function(text) {
+        var rows = csvToObjects(text);
+        for (var r = 0; r < rows.length; r++) {
+          allRows.push(rows[r]);
+        }
+      }).catch(function() {});
+    }
+  }).then(function() {
+    if (allRows.length === 0) {
+      document.getElementById('mainContent').innerHTML = '<div class="error-msg">Could not load data. Please check that the Google Sheet is published to web and try again.</div>';
+      return;
     }
 
-    // Deduplicate by Process Name / User Story
-    const seen=new Set();
-    DATA=[];
-    allRows.forEach(r=>{
-      const key=(r['Process Name / User Story']||'').trim().toLowerCase();
-      if(key&&seen.has(key))return;
-      if(key)seen.add(key);
-      DATA.push(r);
-    });
+    // Deduplicate by Process Name
+    var seen = {};
+    DATA = [];
+    for (var i = 0; i < allRows.length; i++) {
+      var name = (allRows[i]['Process Name / User Story'] || '').trim().toLowerCase();
+      if (name && seen[name]) continue;
+      if (name) seen[name] = true;
+      DATA.push(allRows[i]);
+    }
 
-    if(!DATA.length)throw new Error('No data rows found');
-    showStatus('Loaded '+DATA.length+' scenarios from '+SHEET_GIDS.length+' tabs (deduplicated)','ok');
     renderAll();
-  }catch(e){
-    showStatus('Error loading sheet: '+e.message,'error');
-    document.getElementById('mainContent').innerHTML=`<div class="loading" style="max-width:600px;margin:0 auto;text-align:left">
-      <p style="margin-bottom:16px">⚠ <strong>Could not fetch the Google Sheet directly.</strong></p>
-      <p style="margin-bottom:12px;font-size:13px;color:var(--text-mid)">This is usually a CORS restriction. Try these options:</p>
-      <ol style="font-size:13px;color:var(--text-mid);padding-left:20px;line-height:2">
-        <li>Open your CSV URL in a browser tab, <strong>Select All → Copy</strong> the text, then paste it into the box below</li>
-        <li>Or download the CSV and drag it onto this page</li>
-      </ol>
-      <textarea id="manualCsv" placeholder="Paste CSV data here..." style="width:100%;height:120px;margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:11px;"></textarea>
-      <button class="btn btn-gold" style="margin-top:8px" onclick="loadManual()">Load Pasted Data</button>
-      <div style="margin-top:16px;padding:12px;background:#faf8f5;border-radius:6px;font-size:11px;color:var(--text-light)">
-        <strong>Tip:</strong> Once deployed to a web server, the direct fetch will work. CORS only blocks local HTML files.
-      </div>
-    </div>`;
-  }
+  });
 }
 
-function loadManual(){
-  const text=document.getElementById('manualCsv').value.trim();
-  if(!text){showStatus('Please paste CSV data first','error');return;}
-  try{
-    DATA=csvToObjects(text);
-    if(!DATA.length)throw new Error('No data rows found');
-    showStatus('Loaded '+DATA.length+' scenarios from pasted data','ok');
-    renderAll();
-  }catch(e){
-    showStatus('Error parsing data: '+e.message,'error');
-  }
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function getVal(row, field) { return (row[field] || '').trim(); }
+function getExec(r) { return getVal(r, 'Execution'); }
+function getGroup(r) { return getVal(r, 'Group') || 'Unknown'; }
+function getRisk(r) { return parseFloat(r['Risk Average']) || 0; }
+function getStatus(r) { return getVal(r, 'Status'); }
+function getToDo(r) { return getVal(r, 'To Do'); }
+function isPlanned(r) {
+  var v = getVal(r, 'Planned').toLowerCase();
+  return v === 'true' || v === 'yes' || v === '1';
 }
+function pct(n, d) { return d === 0 ? 0 : Math.round((n / d) * 100); }
+function riskClass(risk) { return risk >= 2.5 ? 'risk-high' : risk >= 1.75 ? 'risk-med' : 'risk-low'; }
+function execBadge(ex) { return ex === 'Automated' ? 'badge-auto' : ex === 'Pending' ? 'badge-pending' : 'badge-manual'; }
+function esc(str) { return str.replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-function showStatus(msg,type){
-  const bar=document.getElementById('statusBar');
-  bar.textContent=msg;bar.className='status-bar show'+(type==='error'?' error':'');
-  if(type!=='error')setTimeout(()=>{bar.className='status-bar';},4000);
-}
+function calcStats() {
+  var baseline = parseInt(document.getElementById('cfgBaseline').value) || 60;
+  var automated = 0, manual = 0, pending = 0, planned = 0;
+  var groups = {};
 
-function toggleConfig(){document.getElementById('configPanel').classList.toggle('open');}
+  for (var i = 0; i < DATA.length; i++) {
+    var r = DATA[i];
+    var g = getGroup(r);
+    var ex = getExec(r);
 
-/* ============================================================
-   CALCULATIONS
-   ============================================================ */
-function getExec(r){return(r['Execution']||'').trim();}
-function getGroup(r){return(r['Group']||'Unknown').trim();}
-function getRisk(r){return parseFloat(r['Risk Average'])||0;}
-function isPlanned(r){const v=(r['Planned']||'').toString().trim().toLowerCase();return v==='true'||v==='yes'||v==='1';}
-function getStatus(r){return(r['Status']||'').trim();}
-function getToDo(r){return(r['To Do']||'').trim();}
-
-function calcStats(){
-  const baseline=parseInt(document.getElementById('cfgBaseline').value)||60;
-  const total=DATA.length;
-  const automated=DATA.filter(r=>getExec(r)==='Automated').length;
-  const manual=DATA.filter(r=>getExec(r)==='Manual').length;
-  const pending=DATA.filter(r=>getExec(r)==='Pending').length;
-  const planned=DATA.filter(r=>isPlanned(r)).length;
-  const pct=baseline>0?Math.round((automated/baseline)*100):0;
-
-  const groups={};
-  DATA.forEach(r=>{
-    const g=getGroup(r);
-    if(!groups[g])groups[g]={total:0,automated:0,manual:0,pending:0,planned:0};
+    if (!groups[g]) groups[g] = { total: 0, automated: 0, manual: 0, pending: 0, planned: 0 };
     groups[g].total++;
-    const ex=getExec(r);
-    if(ex==='Automated')groups[g].automated++;
-    else if(ex==='Manual')groups[g].manual++;
-    else if(ex==='Pending')groups[g].pending++;
-    if(isPlanned(r))groups[g].planned++;
-  });
 
-  return{baseline,total,automated,manual,pending,planned,pct,groups};
+    if (ex === 'Automated') { automated++; groups[g].automated++; }
+    else if (ex === 'Manual') { manual++; groups[g].manual++; }
+    else if (ex === 'Pending') { pending++; groups[g].pending++; }
+
+    if (isPlanned(r)) { planned++; groups[g].planned++; }
+  }
+
+  return {
+    baseline: baseline,
+    total: DATA.length,
+    automated: automated,
+    manual: manual,
+    pending: pending,
+    planned: planned,
+    pct: pct(automated, baseline),
+    groups: groups
+  };
 }
 
-/* ============================================================
+/* ================================================================
    FILTERING & SORTING
-   ============================================================ */
-function applyFilters(){
-  FILTERED=DATA.filter(r=>{
-    if(ACTIVE_GROUP!=='All'&&getGroup(r)!==ACTIVE_GROUP)return false;
-    if(SEARCH){
-      const s=SEARCH.toLowerCase();
-      const hay=[(r['Process Name / User Story']||''),(r['Group']||''),(r['Description']||''),(r['Status']||''),(r['Execution']||''),(r['To Do']||''),(r['Notes']||'')].join(' ').toLowerCase();
-      if(!hay.includes(s))return false;
+   ================================================================ */
+function applyFilters() {
+  FILTERED = [];
+  for (var i = 0; i < DATA.length; i++) {
+    var r = DATA[i];
+    if (ACTIVE_GROUP !== 'All' && getGroup(r) !== ACTIVE_GROUP) continue;
+    if (SEARCH_TERM) {
+      var hay = [
+        getVal(r, 'Process Name / User Story'),
+        getVal(r, 'Group'),
+        getVal(r, 'Description'),
+        getVal(r, 'Status'),
+        getVal(r, 'Execution'),
+        getVal(r, 'To Do'),
+        getVal(r, 'Notes')
+      ].join(' ').toLowerCase();
+      if (hay.indexOf(SEARCH_TERM.toLowerCase()) === -1) continue;
     }
-    return true;
-  });
-  if(SORT_COL){
-    FILTERED.sort((a,b)=>{
-      let va=a[SORT_COL]||'',vb=b[SORT_COL]||'';
-      const na=parseFloat(va),nb=parseFloat(vb);
-      if(!isNaN(na)&&!isNaN(nb))return(na-nb)*SORT_DIR;
-      return va.localeCompare(vb)*SORT_DIR;
+    FILTERED.push(r);
+  }
+
+  if (SORT_COL) {
+    FILTERED.sort(function(a, b) {
+      var va = a[SORT_COL] || '';
+      var vb = b[SORT_COL] || '';
+      var na = parseFloat(va);
+      var nb = parseFloat(vb);
+      if (!isNaN(na) && !isNaN(nb)) return (na - nb) * SORT_DIR;
+      return va.localeCompare(vb) * SORT_DIR;
     });
   }
 }
 
-function setGroup(g){ACTIVE_GROUP=g;applyFilters();renderList();}
-function setSearch(v){SEARCH=v;applyFilters();renderList();}
-function setSort(col){if(SORT_COL===col)SORT_DIR*=-1;else{SORT_COL=col;SORT_DIR=1;}applyFilters();renderList();}
-
-/* ============================================================
-   RENDER ALL
-   ============================================================ */
-function renderAll(){
-  const s=calcStats();
+function setGroup(g) {
+  ACTIVE_GROUP = g;
   applyFilters();
+  renderList();
+  // Update active filter button
+  var btns = document.querySelectorAll('.filter-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].getAttribute('data-group') === g ? 'filter-btn active' : 'filter-btn';
+  }
+}
 
-  const groupNames=Object.keys(s.groups).sort();
-  const maxGrp=Math.max(...groupNames.map(g=>s.groups[g].total),1);
-
-  let html='';
-
-  // KPIs
-  html+=`<div class="kpi-grid">
-    <div class="kpi"><div class="bar" style="background:var(--maroon)"></div>
-      <div class="lbl">Baseline Goal</div><div class="val" style="color:var(--maroon)">${s.baseline}</div>
-      <div class="sub">Revised target scenarios</div></div>
-    <div class="kpi"><div class="bar" style="background:var(--forest)"></div>
-      <div class="lbl">Currently Automated</div><div class="val" style="color:var(--forest)">${s.automated}</div>
-      <div class="sub">${s.pct}% of baseline · ${s.total} total scenarios tracked</div></div>
-    <div class="kpi"><div class="bar" style="background:var(--goldenrod)"></div>
-      <div class="lbl">Pipeline</div><div class="val" style="color:var(--goldenrod-dark)">${s.manual+s.pending}</div>
-      <div class="sub">${s.manual} manual · ${s.pending} pending · ${s.planned} planned</div></div>
-  </div>`;
-
-  // Progress
-  const autoW=Math.min(s.pct,100);
-  const pendW=Math.min(Math.round(((s.automated+s.pending)/s.baseline)*100),100)-autoW;
-  html+=`<div class="progress-panel">
-    <div class="title">Progress Toward Baseline (${s.baseline})</div>
-    <div class="prog-row">
-      <div class="prog-label"><span><strong style="color:var(--forest)">${s.automated} automated</strong> + ${s.pending} pending of ${s.baseline} baseline</span><strong style="color:var(--forest)">${s.pct}%</strong></div>
-      <div class="prog-track" style="display:flex">
-        <div class="prog-fill" style="width:${autoW}%;background:var(--forest)"></div>
-        <div class="prog-fill" style="width:${pendW}%;background:var(--goldenrod);opacity:0.5"></div>
-      </div>
-    </div>
-    <div style="margin-top:8px;font-size:11px;color:var(--text-light);display:flex;gap:16px;">
-      <span><i style="display:inline-block;width:10px;height:10px;background:var(--forest);border-radius:2px;vertical-align:middle;margin-right:4px;"></i>Automated</span>
-      <span><i style="display:inline-block;width:10px;height:10px;background:var(--goldenrod);opacity:0.5;border-radius:2px;vertical-align:middle;margin-right:4px;"></i>Pending</span>
-    </div>
-  </div>`;
-
-  // Category Breakdown
-  html+=`<div class="cat-grid">
-    <div class="cat-panel"><div class="title">Scenarios by Group</div>`;
-  groupNames.forEach(g=>{
-    const d=s.groups[g];const color=gc(g);
-    const aw=(d.automated/maxGrp)*90;const mw=(d.manual/maxGrp)*90;const pw=(d.pending/maxGrp)*90;
-    html+=`<div class="cat-row">
-      <div class="cat-lbl"><span style="color:${color};font-weight:600">${g}</span><span style="color:var(--text-mid)">${d.total} total</span></div>
-      <div class="cat-track">
-        ${d.automated?`<div style="width:${aw}%;background:${color};border-radius:4px 0 0 4px"></div>`:''}
-        ${d.manual?`<div style="width:${mw}%;background:${color}44"></div>`:''}
-        ${d.pending?`<div style="width:${pw}%;background:${color}22;border-right:2px dashed ${color}"></div>`:''}
-      </div>
-    </div>`;
-  });
-  html+=`<div class="cat-legend"><span><i style="background:var(--greystone)"></i> Automated</span><span><i style="background:rgba(118,118,118,0.27)"></i> Manual</span><span><i style="background:rgba(118,118,118,0.13);border:1px dashed var(--greystone)"></i> Pending</span></div></div>`;
-
-  // Automation by Group
-  html+=`<div class="cat-panel"><div class="title">Automation Rate by Group</div>`;
-  groupNames.forEach(g=>{
-    const d=s.groups[g];const color=gc(g);
-    const rate=d.total>0?Math.round((d.automated/d.total)*100):0;
-    html+=`<div class="cat-row">
-      <div class="cat-lbl"><span style="color:${color};font-weight:600">${g}</span><span style="font-weight:600;color:${rate>=60?'var(--forest)':rate>=30?'var(--goldenrod-dark)':'var(--brick)'}">${rate}%</span></div>
-      <div class="cat-track"><div style="width:${rate}%;background:${color};border-radius:4px;height:100%"></div></div>
-    </div>`;
-  });
-  html+=`</div></div>`;
-
-  // Scenario List
-  const groupCounts={};
-  DATA.forEach(r=>{const g=getGroup(r);groupCounts[g]=(groupCounts[g]||0)+1;});
-
-  html+=`<div class="list-section">
-    <div class="list-toolbar">
-      <input class="search-input" type="text" placeholder="Search scenarios..." oninput="setSearch(this.value)" value="${SEARCH}">
-      <button class="filter-btn ${ACTIVE_GROUP==='All'?'active':''}" onclick="setGroup('All')">All<span class="count">${DATA.length}</span></button>`;
-  groupNames.forEach(g=>{
-    html+=`<button class="filter-btn ${ACTIVE_GROUP===g?'active':''}" onclick="setGroup('${g.replace(/'/g,"\\'")}')">${g}<span class="count">${groupCounts[g]||0}</span></button>`;
-  });
-  html+=`</div><div id="listBody"></div></div>`;
-
-  // Footer
-  html+=`<div class="footer"><span>Copado Robotic Testing (CRT) · Live from Google Sheets</span><span>Last loaded: ${new Date().toLocaleString()}</span></div>`;
-
-  document.getElementById('mainContent').innerHTML=html;
+function setSearch(val) {
+  SEARCH_TERM = val;
+  applyFilters();
   renderList();
 }
 
-/* ============================================================
-   RENDER LIST
-   ============================================================ */
-function renderList(){
-  const body=document.getElementById('listBody');
-  if(!body)return;
-
-  if(!FILTERED.length){body.innerHTML='<div class="empty">No scenarios match your filters</div>';return;}
-
-  const arrow=col=>SORT_COL===col?(SORT_DIR===1?' ▲':' ▼'):'';
-
-  let t=`<table class="s-table"><thead><tr>
-    <th onclick="setSort('Process Name / User Story')">Process Name${arrow('Process Name / User Story')}</th>
-    <th onclick="setSort('Group')">Group${arrow('Group')}</th>
-    <th onclick="setSort('Execution')">Execution${arrow('Execution')}</th>
-    <th onclick="setSort('Risk Average')">Risk${arrow('Risk Average')}</th>
-    <th onclick="setSort('Status')">Status${arrow('Status')}</th>
-    <th onclick="setSort('To Do')">To Do${arrow('To Do')}</th>
-    <th onclick="setSort('Sprint')">Sprint${arrow('Sprint')}</th>
-  </tr></thead><tbody>`;
-
-  FILTERED.forEach((r,i)=>{
-    const ex=getExec(r);
-    const risk=getRisk(r);
-    const pl=isPlanned(r);
-    const badgeCls=ex==='Automated'?'badge-auto':ex==='Pending'?'badge-pending':'badge-manual';
-    const riskCls=risk>=2.5?'risk-high':risk>=1.75?'risk-med':'risk-low';
-    const sprint=(r['Sprint']||'').trim();
-    const sprintDisplay=sprint?(sprint.startsWith('http')?'<a href="'+sprint+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View</a>':sprint):'—';
-
-    t+=`<tr class="${pl?'planned-row':''}" onclick="showDetail(${i})">
-      <td><strong>${r['Process Name / User Story']||''}</strong>${pl?'<span class="badge badge-planned">PLANNED</span>':''}</td>
-      <td style="color:${gc(getGroup(r))};font-weight:600;font-size:12px">${getGroup(r)}</td>
-      <td><span class="badge ${badgeCls}">${ex||'—'}</span></td>
-      <td><span class="risk-dot ${riskCls}">${risk}</span></td>
-      <td style="font-size:12px">${getStatus(r)||'—'}</td>
-      <td style="font-size:12px">${getToDo(r)||'—'}</td>
-      <td style="font-size:12px">${sprintDisplay}</td>
-    </tr>`;
-  });
-  t+='</tbody></table>';
-  body.innerHTML=t;
+function setSort(col) {
+  if (SORT_COL === col) { SORT_DIR *= -1; }
+  else { SORT_COL = col; SORT_DIR = 1; }
+  applyFilters();
+  renderList();
 }
 
-/* ============================================================
-   DETAIL VIEW
-   ============================================================ */
-function showDetail(idx){
-  const r=FILTERED[idx];if(!r)return;
-  document.getElementById('detGrp').textContent=getGroup(r);
-  document.getElementById('detTitle').textContent=r['Process Name / User Story']||'';
+/* ================================================================
+   RENDER DASHBOARD
+   ================================================================ */
+function renderAll() {
+  var s = calcStats();
+  applyFilters();
 
-  const ex=getExec(r);const badgeCls=ex==='Automated'?'badge-auto':ex==='Pending'?'badge-pending':'badge-manual';
-  const risk=getRisk(r);const riskCls=risk>=3?'risk-high':risk>=2.75?'risk-med':'risk-low';
-
-  let h='';
-
-  // Badges
-  h+=`<div class="detail-badges">
-    <span class="badge ${badgeCls}">${ex||'—'}</span>
-    ${isPlanned(r)?'<span class="badge badge-planned">PLANNED</span>':''}
-    <span class="risk-dot ${riskCls}" style="font-size:10px;width:auto;padding:4px 10px;border-radius:12px;">Risk: ${risk}</span>
-  </div>`;
-
-  // Description
-  const desc=(r['Description']||'').trim();
-  if(desc)h+=`<div class="detail-desc">${desc}</div>`;
-
-  // Test Steps
-  const steps=(r['Test Steps']||'').trim();
-  if(steps){h+=`<div class="detail-section"><h3>Test Steps</h3><div class="detail-steps">${steps.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;}
-
-  // Risk Fields
-  h+=`<div class="detail-section"><h3>Risk Assessment</h3><div class="detail-grid">
-    <div class="detail-field"><div class="df-label">Frequency of Use</div><div class="df-value">${r['Frequency of Use']||'—'}</div></div>
-    <div class="detail-field"><div class="df-label">Business Impact</div><div class="df-value">${r['Business Impact']||'—'}</div></div>
-    <div class="detail-field"><div class="df-label">Process Complexity</div><div class="df-value">${r['Process Complexity']||'—'}</div></div>
-    <div class="detail-field"><div class="df-label">Technical Impact</div><div class="df-value">${r['Technical Impact']||'—'}</div></div>
-  </div></div>`;
-
-  // Status & Workflow
-  h+=`<div class="detail-section"><h3>Workflow</h3><div class="detail-grid">
-    <div class="detail-field"><div class="df-label">Status</div><div class="df-value">${getStatus(r)||'—'}</div></div>
-    <div class="detail-field"><div class="df-label">To Do</div><div class="df-value">${getToDo(r)||'—'}</div></div>
-    <div class="detail-field"><div class="df-label">Execution</div><div class="df-value">${ex||'—'}</div></div>
-    <div class="detail-field"><div class="df-label">Sprint</div><div class="df-value">${(()=>{const s=(r['Sprint']||'').trim();return s?(s.startsWith('http')?'<a href="'+s+'" target="_blank">View Sprint</a>':s):'—';})()}</div></div>
-  </div></div>`;
-
-  // Links
-  const workId=(r['Work ID']||'').trim();
-  const notes=(r['Notes']||'').trim();
-  if(workId||notes){
-    h+=`<div class="detail-section"><h3>References</h3><div class="detail-grid">`;
-    if(workId)h+=`<div class="detail-field"><div class="df-label">Work ID</div><div class="df-value">${workId.startsWith('http')?'<a href="'+workId+'" target="_blank">Open in CRT</a>':workId}</div></div>`;
-    if(notes)h+=`<div class="detail-field"><div class="df-label">Notes</div><div class="df-value">${notes}</div></div>`;
-    h+=`</div></div>`;
+  var groupNames = Object.keys(s.groups).sort();
+  var maxGrp = 1;
+  for (var i = 0; i < groupNames.length; i++) {
+    if (s.groups[groupNames[i]].total > maxGrp) maxGrp = s.groups[groupNames[i]].total;
   }
 
-  document.getElementById('detBody').innerHTML=h;
+  var html = '';
+
+  // KPIs
+  html += '<div class="kpi-grid">';
+  html += '<div class="kpi"><div class="bar" style="background:var(--maroon)"></div>';
+  html += '<div class="lbl">Baseline Goal</div>';
+  html += '<div class="val" style="color:var(--maroon)">' + s.baseline + '</div>';
+  html += '<div class="sub">Target scenarios</div></div>';
+
+  html += '<div class="kpi"><div class="bar" style="background:var(--forest)"></div>';
+  html += '<div class="lbl">Currently Automated</div>';
+  html += '<div class="val" style="color:var(--forest)">' + s.automated + '</div>';
+  html += '<div class="sub">' + s.pct + '% of baseline · ' + s.total + ' total tracked</div></div>';
+
+  html += '<div class="kpi"><div class="bar" style="background:var(--goldenrod)"></div>';
+  html += '<div class="lbl">Pipeline</div>';
+  html += '<div class="val" style="color:var(--goldenrod-dark)">' + (s.manual + s.pending) + '</div>';
+  html += '<div class="sub">' + s.manual + ' manual · ' + s.pending + ' pending · ' + s.planned + ' planned</div></div>';
+  html += '</div>';
+
+  // Progress
+  var autoW = Math.min(s.pct, 100);
+  var pendW = Math.min(pct(s.automated + s.pending, s.baseline), 100) - autoW;
+  html += '<div class="progress-panel">';
+  html += '<div class="title">Progress Toward Baseline (' + s.baseline + ')</div>';
+  html += '<div class="prog-label"><span><strong style="color:var(--forest)">' + s.automated + ' automated</strong> + ' + s.pending + ' pending of ' + s.baseline + '</span><strong style="color:var(--forest)">' + s.pct + '%</strong></div>';
+  html += '<div class="prog-track">';
+  html += '<div class="prog-fill" style="width:' + autoW + '%;background:var(--forest)"></div>';
+  html += '<div class="prog-fill" style="width:' + pendW + '%;background:var(--goldenrod);opacity:0.5"></div>';
+  html += '</div>';
+  html += '<div class="prog-legend"><span><i style="background:var(--forest)"></i>Automated</span><span><i style="background:var(--goldenrod);opacity:0.5"></i>Pending</span></div>';
+  html += '</div>';
+
+  // Category panels
+  html += '<div class="cat-grid">';
+
+  // Scenarios by group
+  html += '<div class="cat-panel"><div class="title">Scenarios by Group</div>';
+  for (var i = 0; i < groupNames.length; i++) {
+    var g = groupNames[i];
+    var d = s.groups[g];
+    var c = gc(g);
+    var aw = (d.automated / maxGrp) * 90;
+    var mw = (d.manual / maxGrp) * 90;
+    var pw = (d.pending / maxGrp) * 90;
+    html += '<div class="cat-row">';
+    html += '<div class="cat-lbl"><span style="color:' + c + ';font-weight:600">' + g + '</span><span>' + d.total + '</span></div>';
+    html += '<div class="cat-track">';
+    if (d.automated) html += '<div style="width:' + aw + '%;background:' + c + ';border-radius:4px 0 0 4px"></div>';
+    if (d.manual) html += '<div style="width:' + mw + '%;background:' + c + '44"></div>';
+    if (d.pending) html += '<div style="width:' + pw + '%;background:' + c + '22;border-right:2px dashed ' + c + '"></div>';
+    html += '</div></div>';
+  }
+  html += '<div class="cat-legend"><span><i style="background:var(--greystone)"></i>Automated</span><span><i style="background:rgba(118,118,118,0.27)"></i>Manual</span><span><i style="background:rgba(118,118,118,0.13);border:1px dashed var(--greystone)"></i>Pending</span></div>';
+  html += '</div>';
+
+  // Automation rate
+  html += '<div class="cat-panel"><div class="title">Automation Rate by Group</div>';
+  for (var i = 0; i < groupNames.length; i++) {
+    var g = groupNames[i];
+    var d = s.groups[g];
+    var c = gc(g);
+    var rate = d.total > 0 ? Math.round((d.automated / d.total) * 100) : 0;
+    var rateColor = rate >= 60 ? 'var(--forest)' : rate >= 30 ? 'var(--goldenrod-dark)' : 'var(--brick)';
+    html += '<div class="cat-row">';
+    html += '<div class="cat-lbl"><span style="color:' + c + ';font-weight:600">' + g + '</span><span style="font-weight:600;color:' + rateColor + '">' + rate + '%</span></div>';
+    html += '<div class="cat-track"><div style="width:' + rate + '%;background:' + c + ';border-radius:4px;height:100%"></div></div>';
+    html += '</div>';
+  }
+  html += '</div></div>';
+
+  // Scenario list
+  var groupCounts = {};
+  for (var i = 0; i < DATA.length; i++) {
+    var g = getGroup(DATA[i]);
+    groupCounts[g] = (groupCounts[g] || 0) + 1;
+  }
+
+  html += '<div class="list-section"><div class="list-toolbar">';
+  html += '<input class="search-input" type="text" placeholder="Search scenarios..." oninput="setSearch(this.value)" value="' + SEARCH_TERM + '">';
+  html += '<button class="filter-btn' + (ACTIVE_GROUP === 'All' ? ' active' : '') + '" data-group="All" onclick="setGroup(\'All\')">All<span class="ct">' + DATA.length + '</span></button>';
+  for (var i = 0; i < groupNames.length; i++) {
+    var g = groupNames[i];
+    var escaped = g.replace(/'/g, "\\'");
+    html += '<button class="filter-btn' + (ACTIVE_GROUP === g ? ' active' : '') + '" data-group="' + g + '" onclick="setGroup(\'' + escaped + '\')">' + g + '<span class="ct">' + (groupCounts[g] || 0) + '</span></button>';
+  }
+  html += '</div><div id="listBody"></div></div>';
+
+  // Footer
+  html += '<div class="footer"><span>Copado Robotic Testing (CRT) · Live from Google Sheets</span><span>' + new Date().toLocaleDateString() + '</span></div>';
+
+  document.getElementById('mainContent').innerHTML = html;
+  renderList();
+}
+
+/* ================================================================
+   RENDER TABLE
+   ================================================================ */
+function renderList() {
+  var body = document.getElementById('listBody');
+  if (!body) return;
+
+  if (FILTERED.length === 0) {
+    body.innerHTML = '<div class="empty">No scenarios match your filters</div>';
+    return;
+  }
+
+  var arrow = function(col) {
+    if (SORT_COL !== col) return '';
+    return SORT_DIR === 1 ? ' ▲' : ' ▼';
+  };
+
+  var t = '<table class="s-table"><thead><tr>';
+  t += '<th onclick="setSort(\'Process Name / User Story\')">Process Name' + arrow('Process Name / User Story') + '</th>';
+  t += '<th onclick="setSort(\'Group\')">Group' + arrow('Group') + '</th>';
+  t += '<th onclick="setSort(\'Execution\')">Execution' + arrow('Execution') + '</th>';
+  t += '<th onclick="setSort(\'Risk Average\')">Risk' + arrow('Risk Average') + '</th>';
+  t += '<th onclick="setSort(\'Status\')">Status' + arrow('Status') + '</th>';
+  t += '<th onclick="setSort(\'To Do\')">To Do' + arrow('To Do') + '</th>';
+  t += '<th onclick="setSort(\'Sprint\')">Sprint' + arrow('Sprint') + '</th>';
+  t += '</tr></thead><tbody>';
+
+  for (var i = 0; i < FILTERED.length; i++) {
+    var r = FILTERED[i];
+    var ex = getExec(r);
+    var risk = getRisk(r);
+    var pl = isPlanned(r);
+    var sprint = getVal(r, 'Sprint');
+    var sprintDisplay = '—';
+    if (sprint) {
+      sprintDisplay = sprint.indexOf('http') === 0
+        ? '<a href="' + sprint + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View</a>'
+        : sprint;
+    }
+
+    t += '<tr class="' + (pl ? 'planned-row' : '') + '" onclick="showDetail(' + i + ')">';
+    t += '<td><strong>' + esc(getVal(r, 'Process Name / User Story')) + '</strong>' + (pl ? '<span class="badge badge-planned">PLANNED</span>' : '') + '</td>';
+    t += '<td style="color:' + gc(getGroup(r)) + ';font-weight:600;font-size:12px">' + esc(getGroup(r)) + '</td>';
+    t += '<td><span class="badge ' + execBadge(ex) + '">' + (ex || '—') + '</span></td>';
+    t += '<td><span class="risk-dot ' + riskClass(risk) + '">' + (risk || '—') + '</span></td>';
+    t += '<td style="font-size:12px">' + (getStatus(r) || '—') + '</td>';
+    t += '<td style="font-size:12px">' + (getToDo(r) || '—') + '</td>';
+    t += '<td style="font-size:12px">' + sprintDisplay + '</td>';
+    t += '</tr>';
+  }
+
+  t += '</tbody></table>';
+  body.innerHTML = t;
+}
+
+/* ================================================================
+   DETAIL VIEW
+   ================================================================ */
+function showDetail(idx) {
+  var r = FILTERED[idx];
+  if (!r) return;
+
+  document.getElementById('detGrp').textContent = getGroup(r);
+  document.getElementById('detTitle').textContent = getVal(r, 'Process Name / User Story');
+
+  var ex = getExec(r);
+  var risk = getRisk(r);
+  var h = '';
+
+  // Badges
+  h += '<div class="detail-badges">';
+  h += '<span class="badge ' + execBadge(ex) + '">' + (ex || '—') + '</span>';
+  if (isPlanned(r)) h += '<span class="badge badge-planned">PLANNED</span>';
+  h += '<span class="risk-dot ' + riskClass(risk) + '" style="font-size:10px;width:auto;padding:4px 10px;border-radius:12px;">Risk: ' + (risk || '—') + '</span>';
+  h += '</div>';
+
+  // Description
+  var desc = getVal(r, 'Description');
+  if (desc) h += '<div class="detail-desc">' + esc(desc) + '</div>';
+
+  // Test Steps
+  var steps = getVal(r, 'Test Steps');
+  if (steps) {
+    h += '<div class="detail-section"><h3>Test Steps</h3>';
+    h += '<div class="detail-steps">' + esc(steps) + '</div></div>';
+  }
+
+  // Risk Assessment
+  h += '<div class="detail-section"><h3>Risk Assessment</h3><div class="detail-grid">';
+  h += '<div class="detail-field"><div class="df-label">Frequency of Use</div><div class="df-value">' + (getVal(r, 'Frequency of Use') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Business Impact</div><div class="df-value">' + (getVal(r, 'Business Impact') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Process Complexity</div><div class="df-value">' + (getVal(r, 'Process Complexity') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Technical Impact</div><div class="df-value">' + (getVal(r, 'Technical Impact') || '—') + '</div></div>';
+  h += '</div></div>';
+
+  // Workflow
+  h += '<div class="detail-section"><h3>Workflow</h3><div class="detail-grid">';
+  h += '<div class="detail-field"><div class="df-label">Status</div><div class="df-value">' + (getStatus(r) || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">To Do</div><div class="df-value">' + (getToDo(r) || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Execution</div><div class="df-value">' + (ex || '—') + '</div></div>';
+
+  var sprint = getVal(r, 'Sprint');
+  var sprintVal = '—';
+  if (sprint) {
+    sprintVal = sprint.indexOf('http') === 0
+      ? '<a href="' + sprint + '" target="_blank">View Sprint</a>'
+      : sprint;
+  }
+  h += '<div class="detail-field"><div class="df-label">Sprint</div><div class="df-value">' + sprintVal + '</div></div>';
+  h += '</div></div>';
+
+  // References
+  var workId = getVal(r, 'Work ID');
+  var notes = getVal(r, 'Notes');
+  if (workId || notes) {
+    h += '<div class="detail-section"><h3>References</h3><div class="detail-grid">';
+    if (workId) {
+      var wVal = workId.indexOf('http') === 0
+        ? '<a href="' + workId + '" target="_blank">Open in CRT</a>'
+        : workId;
+      h += '<div class="detail-field"><div class="df-label">Work ID</div><div class="df-value">' + wVal + '</div></div>';
+    }
+    if (notes) {
+      h += '<div class="detail-field"><div class="df-label">Notes</div><div class="df-value">' + esc(notes) + '</div></div>';
+    }
+    h += '</div></div>';
+  }
+
+  document.getElementById('detBody').innerHTML = h;
   document.getElementById('detailOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
 
-function closeDetail(){
+function closeDetail() {
   document.getElementById('detailOverlay').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDetail();
+});
 
 // Auto-load on page open
-function autoLoad(){loadSheet();}
-window.addEventListener('DOMContentLoaded',()=>{loadSheet();});
+window.addEventListener('DOMContentLoaded', function() {
+  loadData();
+});
 </script>
 </body>
 </html>
