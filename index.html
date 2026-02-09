@@ -809,7 +809,7 @@ function loadData() {
 /* ================================================================
    HELPERS
    ================================================================ */
-function gv(row, field) { return (row[field] || '').trim(); }
+function gv(row, field) { return (row[field] || '').trim().replace(/[\u200B\u200C\u200D\uFEFF\u00A0]/g, ''); }
 function getExec(r) { return gv(r, 'Execution'); }
 function getGroup(r) { return gv(r, 'Group') || 'Unknown'; }
 function getRisk(r) { return parseFloat(r['Risk Average']) || 0; }
@@ -822,7 +822,8 @@ function execBadge(ex) { return ex === 'Automated' ? 'badge-auto' : ex === 'Pend
 function esc(str) { return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function linkOrText(val, label) {
   if (!val) return '—';
-  return val.indexOf('http') === 0 ? '<a href="' + val + '" target="_blank">' + (label || 'View') + '</a>' : esc(val);
+  if (val.indexOf('http') !== 0) return esc(val);
+  return '<a href="' + val + '" target="_blank">' + (label || 'View') + '</a>';
 }
 
 /* ================================================================
@@ -1006,14 +1007,27 @@ function renderList() {
   t += '<th onclick="setSort(\'Risk Average\')">Risk' + arrow('Risk Average') + '</th>';
   t += '<th onclick="setSort(\'Status\')">Status' + arrow('Status') + '</th>';
   t += '<th onclick="setSort(\'To Do\')">To Do' + arrow('To Do') + '</th>';
-  t += '<th onclick="setSort(\'Sprint\')">Sprint' + arrow('Sprint') + '</th>';
+  t += '<th onclick="setSort(\'Sprint\')">User Story' + arrow('Sprint') + '</th>';
   t += '</tr></thead><tbody>';
 
   for (var i = 0; i < FILTERED.length; i++) {
     var r = FILTERED[i];
     var ex = getExec(r), risk = getRisk(r), pl = isPlanned(r);
     var sprint = gv(r, 'Sprint');
-    var sd = sprint ? (sprint.indexOf('http') === 0 ? '<a href="' + sprint + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View</a>' : esc(sprint)) : '—';
+    var sd = '—';
+    if (sprint) {
+      if (sprint.indexOf('http') === 0) {
+        var cleanUrl = sprint;
+        if (cleanUrl.indexOf('google.com/url') !== -1) {
+          var m = cleanUrl.match(/[?&]q=([^&]+)/);
+          if (m) cleanUrl = decodeURIComponent(m[1]);
+        }
+        cleanUrl = cleanUrl.replace(/\s+$/, '');
+        sd = '<a href="' + cleanUrl + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View User Story</a>';
+      } else {
+        sd = esc(sprint);
+      }
+    }
 
     t += '<tr class="' + (pl ? 'planned-row' : '') + '" onclick="showDetail(' + i + ')">';
     t += '<td><strong>' + esc(gv(r, 'Process Name / User Story')) + '</strong>' + (pl ? '<span class="badge badge-planned">PLANNED</span>' : '') + '</td>';
@@ -1063,7 +1077,7 @@ function showDetail(idx) {
   h += '<div class="detail-field"><div class="df-label">Status</div><div class="df-value">' + (getStatus(r) || '—') + '</div></div>';
   h += '<div class="detail-field"><div class="df-label">To Do</div><div class="df-value">' + (getToDo(r) || '—') + '</div></div>';
   h += '<div class="detail-field"><div class="df-label">Execution</div><div class="df-value">' + (ex || '—') + '</div></div>';
-  h += '<div class="detail-field"><div class="df-label">Sprint</div><div class="df-value">' + linkOrText(gv(r, 'Sprint'), 'View Sprint') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">User Story</div><div class="df-value">' + linkOrText(gv(r, 'Sprint'), 'View User Story') + '</div></div>';
   h += '</div></div>';
 
   var workId = gv(r, 'Work ID'), notes = gv(r, 'Notes');
