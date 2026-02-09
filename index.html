@@ -505,6 +505,8 @@ body {
   padding: 12px 16px;
   background: #faf8f5;
   border-radius: 6px;
+  max-height: 250px;
+  overflow-y: auto;
 }
 .detail-grid {
   display: grid;
@@ -1045,7 +1047,7 @@ function showDetail(idx) {
   h += '</div>';
 
   var desc = gv(r, 'Description');
-  if (desc) h += '<div class="detail-desc">' + esc(desc) + '</div>';
+  if (desc) h += '<div class="detail-section"><h3>Description</h3><div class="detail-desc">' + esc(desc) + '</div></div>';
 
   var steps = gv(r, 'Test Steps');
   if (steps) h += '<div class="detail-section"><h3>Test Steps</h3><div class="detail-steps">' + esc(steps) + '</div></div>';
