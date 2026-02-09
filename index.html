@@ -148,7 +148,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <div class="header-sub">University of Chicago Advancement · Copado Robotic Testing (CRT)</div>
     </div>
     <div class="header-actions">
-      <input type="text" id="sheetUrl" placeholder="Google Sheet CSV URL..." value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGV-kjbZw4zZrS-zS3HWuqDf-bGuy4Cgi84V10UR6Np6ZhHZ-S27hhHVgVlV82IIY0ltQ9LuCzZEf/pub?output=csv">
+      <input type="text" id="sheetUrl" placeholder="Google Sheet CSV URL (base, no gid)..." value="https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGV-kjbZw4zZrS-zS3HWuqDf-bGuy4Cgi84V10UR6Np6ZhHZ-S27hhHVgVlV82IIY0ltQ9LuCzZEf/pub?output=csv">
       <button class="btn btn-gold" onclick="loadSheet()">↻ Load</button>
       <button class="btn btn-gold" onclick="autoLoad()" style="background:var(--forest);color:#fff">▶ Auto</button>
       <button class="btn btn-config" onclick="toggleConfig()">⚙</button>
@@ -232,65 +232,71 @@ function csvToObjects(text){
 /* ============================================================
    LOAD SHEET
    ============================================================ */
-async function loadSheet(){
-  const url=document.getElementById('sheetUrl').value.trim();
-  if(!url){showStatus('Please enter a Google Sheet CSV URL','error');return;}
-  const csvUrl=url.includes('pub?output=csv')?url:url.replace(/\/pubhtml.*$/,'/pub?output=csv').replace(/\/pub$/,'/pub?output=csv');
-  document.getElementById('mainContent').innerHTML='<div class="loading"><div class="spinner"></div><br>Loading from Google Sheets...</div>';
+const SHEET_GIDS = ['0', '1486981684'];
 
-  // Try multiple methods to handle CORS
+async function fetchCSV(url){
   const methods=[
-    ()=>fetch(csvUrl),
-    ()=>fetch('https://corsproxy.io/?'+encodeURIComponent(csvUrl)),
-    ()=>fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(csvUrl)),
-    ()=>new Promise((resolve,reject)=>{
-      const cb='_cb'+Date.now();
-      const script=document.createElement('script');
-      window[cb]=function(data){delete window[cb];document.head.removeChild(script);resolve(data);};
-      script.onerror=()=>{delete window[cb];document.head.removeChild(script);reject(new Error('JSONP failed'));};
-      script.src='https://api.allorigins.win/get?url='+encodeURIComponent(csvUrl)+'&callback='+cb;
-      document.head.appendChild(script);
-    })
+    ()=>fetch(url),
+    ()=>fetch('https://corsproxy.io/?'+encodeURIComponent(url)),
+    ()=>fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)),
   ];
-
-  let loaded=false;
   for(let i=0;i<methods.length;i++){
     try{
-      const result=await methods[i]();
-      let text;
-      if(result instanceof Response){
-        if(!result.ok)throw new Error('HTTP '+result.status);
-        text=await result.text();
-      }else if(result&&result.contents){
-        text=result.contents;
-      }else{
-        throw new Error('Unexpected response');
-      }
-      if(!text||text.length<10)throw new Error('Empty response');
-      DATA=csvToObjects(text);
-      if(!DATA.length)throw new Error('No data rows found');
-      showStatus('Loaded '+DATA.length+' scenarios from Google Sheets','ok');
-      renderAll();
-      loaded=true;
-      break;
-    }catch(e){
-      if(i===methods.length-1){
-        showStatus('Error loading sheet: Could not connect. Try option below.','error');
-        document.getElementById('mainContent').innerHTML=`<div class="loading" style="max-width:600px;margin:0 auto;text-align:left">
-          <p style="margin-bottom:16px">⚠ <strong>Could not fetch the Google Sheet directly.</strong></p>
-          <p style="margin-bottom:12px;font-size:13px;color:var(--text-mid)">This is usually a CORS restriction. Try these options:</p>
-          <ol style="font-size:13px;color:var(--text-mid);padding-left:20px;line-height:2">
-            <li>Open your CSV URL in a browser tab, <strong>Select All → Copy</strong> the text, then paste it into the box below</li>
-            <li>Or download the CSV and drag it onto this page</li>
-          </ol>
-          <textarea id="manualCsv" placeholder="Paste CSV data here..." style="width:100%;height:120px;margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:11px;"></textarea>
-          <button class="btn btn-gold" style="margin-top:8px" onclick="loadManual()">Load Pasted Data</button>
-          <div style="margin-top:16px;padding:12px;background:#faf8f5;border-radius:6px;font-size:11px;color:var(--text-light)">
-            <strong>Tip:</strong> Once deployed to a web server, the direct fetch will work. CORS only blocks local HTML files.
-          </div>
-        </div>`;
+      const resp=await methods[i]();
+      if(!resp.ok)throw new Error('HTTP '+resp.status);
+      const text=await resp.text();
+      if(!text||text.length<10)throw new Error('Empty');
+      return text;
+    }catch(e){if(i===methods.length-1)throw e;}
+  }
+}
+
+async function loadSheet(){
+  const baseUrl=document.getElementById('sheetUrl').value.trim();
+  if(!baseUrl){showStatus('Please enter a Google Sheet CSV URL','error');return;}
+  document.getElementById('mainContent').innerHTML='<div class="loading"><div class="spinner"></div><br>Loading from Google Sheets ('+SHEET_GIDS.length+' tabs)...</div>';
+
+  try{
+    let allRows=[];
+    for(const gid of SHEET_GIDS){
+      const url=baseUrl.includes('gid=')?baseUrl:baseUrl+(baseUrl.includes('?')?'&':'?')+'gid='+gid;
+      try{
+        const text=await fetchCSV(url);
+        const rows=csvToObjects(text);
+        allRows=allRows.concat(rows);
+      }catch(e){
+        console.warn('Could not load tab gid='+gid+': '+e.message);
       }
     }
+
+    // Deduplicate by Process Name / User Story
+    const seen=new Set();
+    DATA=[];
+    allRows.forEach(r=>{
+      const key=(r['Process Name / User Story']||'').trim().toLowerCase();
+      if(key&&seen.has(key))return;
+      if(key)seen.add(key);
+      DATA.push(r);
+    });
+
+    if(!DATA.length)throw new Error('No data rows found');
+    showStatus('Loaded '+DATA.length+' scenarios from '+SHEET_GIDS.length+' tabs (deduplicated)','ok');
+    renderAll();
+  }catch(e){
+    showStatus('Error loading sheet: '+e.message,'error');
+    document.getElementById('mainContent').innerHTML=`<div class="loading" style="max-width:600px;margin:0 auto;text-align:left">
+      <p style="margin-bottom:16px">⚠ <strong>Could not fetch the Google Sheet directly.</strong></p>
+      <p style="margin-bottom:12px;font-size:13px;color:var(--text-mid)">This is usually a CORS restriction. Try these options:</p>
+      <ol style="font-size:13px;color:var(--text-mid);padding-left:20px;line-height:2">
+        <li>Open your CSV URL in a browser tab, <strong>Select All → Copy</strong> the text, then paste it into the box below</li>
+        <li>Or download the CSV and drag it onto this page</li>
+      </ol>
+      <textarea id="manualCsv" placeholder="Paste CSV data here..." style="width:100%;height:120px;margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:11px;"></textarea>
+      <button class="btn btn-gold" style="margin-top:8px" onclick="loadManual()">Load Pasted Data</button>
+      <div style="margin-top:16px;padding:12px;background:#faf8f5;border-radius:6px;font-size:11px;color:var(--text-light)">
+        <strong>Tip:</strong> Once deployed to a web server, the direct fetch will work. CORS only blocks local HTML files.
+      </div>
+    </div>`;
   }
 }
 
