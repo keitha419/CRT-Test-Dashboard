@@ -35,7 +35,7 @@ body {
   min-height: 100vh;
 }
 
-/* ── HEADER ── */
+/* HEADER */
 .header {
   background: var(--maroon);
   color: #fff;
@@ -90,7 +90,7 @@ body {
 .btn-config { background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; }
 .btn-config:hover { background: rgba(255,255,255,0.25); }
 
-/* ── CONFIG PANEL ── */
+/* CONFIG PANEL */
 #configPanel {
   display: none;
   background: var(--maroon-dark);
@@ -116,10 +116,10 @@ body {
   color: #fff;
 }
 
-/* ── MAIN CONTENT ── */
+/* CONTENT */
 .content { padding: 24px 32px; }
 
-/* ── KPI CARDS ── */
+/* KPI CARDS */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -158,7 +158,7 @@ body {
   margin-top: 2px;
 }
 
-/* ── PROGRESS ── */
+/* PROGRESS */
 .progress-panel {
   background: var(--bg-card);
   border-radius: 8px;
@@ -205,7 +205,7 @@ body {
   margin-right: 4px;
 }
 
-/* ── CATEGORY PANELS ── */
+/* CATEGORY PANELS */
 .cat-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -257,7 +257,7 @@ body {
   vertical-align: middle;
 }
 
-/* ── SCENARIO LIST ── */
+/* SCENARIO LIST */
 .list-section {
   background: var(--bg-card);
   border-radius: 8px;
@@ -317,7 +317,7 @@ body {
   background: rgba(255,255,255,0.25);
 }
 
-/* ── TABLE ── */
+/* TABLE */
 .s-table {
   width: 100%;
   border-collapse: collapse;
@@ -350,7 +350,7 @@ body {
 .s-table tr.planned-row { background: #fef9eb; }
 .s-table tr.planned-row:hover { background: #fdf0d0; }
 
-/* ── BADGES ── */
+/* BADGES */
 .badge {
   display: inline-block;
   padding: 3px 10px;
@@ -382,7 +382,7 @@ body {
 .risk-med { background: var(--goldenrod-dark); }
 .risk-low { background: var(--ivy); }
 
-/* ── DETAIL OVERLAY ── */
+/* DETAIL OVERLAY */
 .detail-overlay {
   display: none;
   position: fixed;
@@ -496,7 +496,7 @@ body {
   margin-bottom: 20px;
 }
 
-/* ── STATES ── */
+/* STATES */
 .loading {
   text-align: center;
   padding: 60px;
@@ -521,10 +521,17 @@ body {
 }
 .error-msg {
   text-align: center;
-  padding: 60px 32px;
-  font-size: 15px;
+  padding: 80px 32px;
   color: var(--brick);
-  font-weight: 600;
+}
+.error-msg h2 {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.error-msg p {
+  font-size: 13px;
+  color: var(--text-mid);
 }
 .footer {
   padding: 12px 32px;
@@ -556,6 +563,7 @@ body {
       <div class="header-sub">University of Chicago Advancement · Copado Robotic Testing (CRT)</div>
     </div>
     <div class="header-actions">
+      <button class="btn btn-gold" onclick="openForm()" style="background:var(--forest);color:#fff">+ Add Scenario</button>
       <button class="btn btn-gold" onclick="loadData()">↻ Refresh</button>
       <button class="btn btn-config" onclick="document.getElementById('configPanel').classList.toggle('open')">⚙</button>
     </div>
@@ -574,6 +582,18 @@ body {
   <div class="loading"><div class="spinner"></div><br>Loading dashboard...</div>
 </div>
 
+<!-- FORM OVERLAY -->
+<div class="detail-overlay" id="formOverlay" onclick="if(event.target===this)closeForm()">
+  <div class="detail-card" style="width:800px;max-height:90vh;">
+    <div class="detail-header">
+      <span class="grp">New Submission</span>
+      <h2>Add Scenario</h2>
+      <button class="detail-close" onclick="closeForm()">✕</button>
+    </div>
+    <iframe id="formFrame" src="" style="width:100%;height:70vh;border:none;"></iframe>
+  </div>
+</div>
+
 <!-- DETAIL OVERLAY -->
 <div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
   <div class="detail-card">
@@ -588,7 +608,9 @@ body {
 
 <script>
 /* ================================================================
-   CONFIGURATION — Edit these values as needed
+   CONFIGURATION
+   Change SHEET_BASE to your published Google Sheet CSV URL.
+   Add tab GIDs to TAB_GIDS array to merge multiple tabs.
    ================================================================ */
 var SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoGV-kjbZw4zZrS-zS3HWuqDf-bGuy4Cgi84V10UR6Np6ZhHZ-S27hhHVgVlV82IIY0ltQ9LuCzZEf/pub?output=csv';
 var TAB_GIDS = ['0', '1486981684'];
@@ -625,41 +647,26 @@ function parseCSV(text) {
   var current = '';
   var inQuotes = false;
   var row = [];
-
   for (var i = 0; i < text.length; i++) {
     var ch = text[i];
     var next = i + 1 < text.length ? text[i + 1] : '';
-
     if (inQuotes) {
-      if (ch === '"' && next === '"') {
-        current += '"';
-        i++;
-      } else if (ch === '"') {
-        inQuotes = false;
-      } else {
-        current += ch;
-      }
+      if (ch === '"' && next === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
     } else {
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ',') {
-        row.push(current.trim());
-        current = '';
-      } else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { row.push(current.trim()); current = ''; }
+      else if (ch === '\n' || (ch === '\r' && next === '\n')) {
         if (ch === '\r') i++;
         row.push(current.trim());
         lines.push(row);
         row = [];
         current = '';
-      } else {
-        current += ch;
-      }
+      } else { current += ch; }
     }
   }
-  if (current || row.length > 0) {
-    row.push(current.trim());
-    lines.push(row);
-  }
+  if (current || row.length > 0) { row.push(current.trim()); lines.push(row); }
   return lines;
 }
 
@@ -674,9 +681,7 @@ function csvToObjects(text) {
   for (var i = 1; i < lines.length; i++) {
     var r = lines[i];
     var empty = true;
-    for (var k = 0; k < r.length; k++) {
-      if (r[k]) { empty = false; break; }
-    }
+    for (var k = 0; k < r.length; k++) { if (r[k]) { empty = false; break; } }
     if (empty) continue;
     var obj = {};
     for (var j = 0; j < headers.length; j++) {
@@ -690,81 +695,56 @@ function csvToObjects(text) {
 /* ================================================================
    DATA LOADING
    ================================================================ */
-function tryFetch(url) {
-  return fetch(url).then(function(resp) {
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return resp.text();
-  }).then(function(text) {
-    if (!text || text.length < 10) throw new Error('Empty');
-    return text;
-  });
-}
-
-function tryProxy(url) {
-  return fetch('https://corsproxy.io/?' + encodeURIComponent(url)).then(function(resp) {
-    if (!resp.ok) throw new Error('Proxy HTTP ' + resp.status);
-    return resp.text();
-  }).then(function(text) {
-    if (!text || text.length < 10) throw new Error('Proxy empty');
-    return text;
-  });
-}
-
-function tryProxy2(url) {
-  return fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url)).then(function(resp) {
-    if (!resp.ok) throw new Error('Proxy2 HTTP ' + resp.status);
-    return resp.text();
-  }).then(function(text) {
-    if (!text || text.length < 10) throw new Error('Proxy2 empty');
-    return text;
-  });
-}
-
-function fetchCSV(url) {
-  return tryFetch(url).catch(function() {
-    return tryProxy(url);
-  }).catch(function() {
-    return tryProxy2(url);
-  });
+function fetchWithFallback(url) {
+  return fetch(url)
+    .then(function(r) { if (!r.ok) throw new Error(); return r.text(); })
+    .then(function(t) { if (!t || t.length < 10) throw new Error(); return t; })
+    .catch(function() {
+      return fetch('https://corsproxy.io/?' + encodeURIComponent(url))
+        .then(function(r) { if (!r.ok) throw new Error(); return r.text(); })
+        .then(function(t) { if (!t || t.length < 10) throw new Error(); return t; });
+    })
+    .catch(function() {
+      return fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url))
+        .then(function(r) { if (!r.ok) throw new Error(); return r.text(); })
+        .then(function(t) { if (!t || t.length < 10) throw new Error(); return t; });
+    });
 }
 
 function loadData() {
   document.getElementById('mainContent').innerHTML = '<div class="loading"><div class="spinner"></div><br>Loading...</div>';
 
   var allRows = [];
-  var fetches = [];
+  var promises = [];
 
   for (var i = 0; i < TAB_GIDS.length; i++) {
     var url = SHEET_BASE + '&gid=' + TAB_GIDS[i];
-    fetches.push(
-      fetchCSV(url).then(function(text) {
-        var rows = csvToObjects(text);
-        for (var r = 0; r < rows.length; r++) {
-          allRows.push(rows[r]);
-        }
-      }).catch(function() {
-        // Tab failed, continue
-      })
+    promises.push(
+      fetchWithFallback(url)
+        .then(function(text) {
+          var rows = csvToObjects(text);
+          for (var r = 0; r < rows.length; r++) allRows.push(rows[r]);
+        })
+        .catch(function() { /* skip failed tab */ })
     );
   }
 
-  Promise.all(fetches).then(function() {
-    // If no rows from tabs, try base URL
+  Promise.all(promises).then(function() {
     if (allRows.length === 0) {
-      return fetchCSV(SHEET_BASE).then(function(text) {
-        var rows = csvToObjects(text);
-        for (var r = 0; r < rows.length; r++) {
-          allRows.push(rows[r]);
-        }
-      }).catch(function() {});
+      return fetchWithFallback(SHEET_BASE)
+        .then(function(text) {
+          var rows = csvToObjects(text);
+          for (var r = 0; r < rows.length; r++) allRows.push(rows[r]);
+        })
+        .catch(function() {});
     }
   }).then(function() {
     if (allRows.length === 0) {
-      document.getElementById('mainContent').innerHTML = '<div class="error-msg">Could not load data. Please check that the Google Sheet is published to web and try again.</div>';
+      document.getElementById('mainContent').innerHTML =
+        '<div class="error-msg"><h2>Could not load data</h2><p>Please check that the Google Sheet is published to web and try again.</p></div>';
       return;
     }
-
-    // Deduplicate by Process Name
+    // Deduplicate
     var seen = {};
     DATA = [];
     for (var i = 0; i < allRows.length; i++) {
@@ -773,7 +753,6 @@ function loadData() {
       if (name) seen[name] = true;
       DATA.push(allRows[i]);
     }
-
     renderAll();
   });
 }
@@ -781,51 +760,38 @@ function loadData() {
 /* ================================================================
    HELPERS
    ================================================================ */
-function getVal(row, field) { return (row[field] || '').trim(); }
-function getExec(r) { return getVal(r, 'Execution'); }
-function getGroup(r) { return getVal(r, 'Group') || 'Unknown'; }
+function gv(row, field) { return (row[field] || '').trim(); }
+function getExec(r) { return gv(r, 'Execution'); }
+function getGroup(r) { return gv(r, 'Group') || 'Unknown'; }
 function getRisk(r) { return parseFloat(r['Risk Average']) || 0; }
-function getStatus(r) { return getVal(r, 'Status'); }
-function getToDo(r) { return getVal(r, 'To Do'); }
-function isPlanned(r) {
-  var v = getVal(r, 'Planned').toLowerCase();
-  return v === 'true' || v === 'yes' || v === '1';
-}
+function getStatus(r) { return gv(r, 'Status'); }
+function getToDo(r) { return gv(r, 'To Do'); }
+function isPlanned(r) { var v = gv(r, 'Planned').toLowerCase(); return v === 'true' || v === 'yes' || v === '1'; }
 function pct(n, d) { return d === 0 ? 0 : Math.round((n / d) * 100); }
 function riskClass(risk) { return risk >= 2.5 ? 'risk-high' : risk >= 1.75 ? 'risk-med' : 'risk-low'; }
 function execBadge(ex) { return ex === 'Automated' ? 'badge-auto' : ex === 'Pending' ? 'badge-pending' : 'badge-manual'; }
-function esc(str) { return str.replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function esc(str) { return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function linkOrText(val, label) {
+  if (!val) return '—';
+  return val.indexOf('http') === 0 ? '<a href="' + val + '" target="_blank">' + (label || 'View') + '</a>' : esc(val);
+}
 
 function calcStats() {
   var baseline = parseInt(document.getElementById('cfgBaseline').value) || 60;
   var automated = 0, manual = 0, pending = 0, planned = 0;
   var groups = {};
-
   for (var i = 0; i < DATA.length; i++) {
     var r = DATA[i];
     var g = getGroup(r);
     var ex = getExec(r);
-
     if (!groups[g]) groups[g] = { total: 0, automated: 0, manual: 0, pending: 0, planned: 0 };
     groups[g].total++;
-
     if (ex === 'Automated') { automated++; groups[g].automated++; }
     else if (ex === 'Manual') { manual++; groups[g].manual++; }
     else if (ex === 'Pending') { pending++; groups[g].pending++; }
-
     if (isPlanned(r)) { planned++; groups[g].planned++; }
   }
-
-  return {
-    baseline: baseline,
-    total: DATA.length,
-    automated: automated,
-    manual: manual,
-    pending: pending,
-    planned: planned,
-    pct: pct(automated, baseline),
-    groups: groups
-  };
+  return { baseline: baseline, total: DATA.length, automated: automated, manual: manual, pending: pending, planned: planned, pct: pct(automated, baseline), groups: groups };
 }
 
 /* ================================================================
@@ -837,26 +803,15 @@ function applyFilters() {
     var r = DATA[i];
     if (ACTIVE_GROUP !== 'All' && getGroup(r) !== ACTIVE_GROUP) continue;
     if (SEARCH_TERM) {
-      var hay = [
-        getVal(r, 'Process Name / User Story'),
-        getVal(r, 'Group'),
-        getVal(r, 'Description'),
-        getVal(r, 'Status'),
-        getVal(r, 'Execution'),
-        getVal(r, 'To Do'),
-        getVal(r, 'Notes')
-      ].join(' ').toLowerCase();
+      var hay = [gv(r,'Process Name / User Story'), gv(r,'Group'), gv(r,'Description'), gv(r,'Status'), gv(r,'Execution'), gv(r,'To Do'), gv(r,'Notes')].join(' ').toLowerCase();
       if (hay.indexOf(SEARCH_TERM.toLowerCase()) === -1) continue;
     }
     FILTERED.push(r);
   }
-
   if (SORT_COL) {
     FILTERED.sort(function(a, b) {
-      var va = a[SORT_COL] || '';
-      var vb = b[SORT_COL] || '';
-      var na = parseFloat(va);
-      var nb = parseFloat(vb);
+      var va = a[SORT_COL] || '', vb = b[SORT_COL] || '';
+      var na = parseFloat(va), nb = parseFloat(vb);
       if (!isNaN(na) && !isNaN(nb)) return (na - nb) * SORT_DIR;
       return va.localeCompare(vb) * SORT_DIR;
     });
@@ -867,21 +822,16 @@ function setGroup(g) {
   ACTIVE_GROUP = g;
   applyFilters();
   renderList();
-  // Update active filter button
   var btns = document.querySelectorAll('.filter-btn');
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = btns[i].getAttribute('data-group') === g ? 'filter-btn active' : 'filter-btn';
   }
 }
 
-function setSearch(val) {
-  SEARCH_TERM = val;
-  applyFilters();
-  renderList();
-}
+function setSearch(val) { SEARCH_TERM = val; applyFilters(); renderList(); }
 
 function setSort(col) {
-  if (SORT_COL === col) { SORT_DIR *= -1; }
+  if (SORT_COL === col) SORT_DIR *= -1;
   else { SORT_COL = col; SORT_DIR = 1; }
   applyFilters();
   renderList();
@@ -893,105 +843,70 @@ function setSort(col) {
 function renderAll() {
   var s = calcStats();
   applyFilters();
-
   var groupNames = Object.keys(s.groups).sort();
   var maxGrp = 1;
   for (var i = 0; i < groupNames.length; i++) {
     if (s.groups[groupNames[i]].total > maxGrp) maxGrp = s.groups[groupNames[i]].total;
   }
 
-  var html = '';
+  var h = '';
 
   // KPIs
-  html += '<div class="kpi-grid">';
-  html += '<div class="kpi"><div class="bar" style="background:var(--maroon)"></div>';
-  html += '<div class="lbl">Baseline Goal</div>';
-  html += '<div class="val" style="color:var(--maroon)">' + s.baseline + '</div>';
-  html += '<div class="sub">Target scenarios</div></div>';
-
-  html += '<div class="kpi"><div class="bar" style="background:var(--forest)"></div>';
-  html += '<div class="lbl">Currently Automated</div>';
-  html += '<div class="val" style="color:var(--forest)">' + s.automated + '</div>';
-  html += '<div class="sub">' + s.pct + '% of baseline · ' + s.total + ' total tracked</div></div>';
-
-  html += '<div class="kpi"><div class="bar" style="background:var(--goldenrod)"></div>';
-  html += '<div class="lbl">Pipeline</div>';
-  html += '<div class="val" style="color:var(--goldenrod-dark)">' + (s.manual + s.pending) + '</div>';
-  html += '<div class="sub">' + s.manual + ' manual · ' + s.pending + ' pending · ' + s.planned + ' planned</div></div>';
-  html += '</div>';
+  h += '<div class="kpi-grid">';
+  h += '<div class="kpi"><div class="bar" style="background:var(--maroon)"></div><div class="lbl">Baseline Goal</div><div class="val" style="color:var(--maroon)">' + s.baseline + '</div><div class="sub">Target scenarios</div></div>';
+  h += '<div class="kpi"><div class="bar" style="background:var(--forest)"></div><div class="lbl">Currently Automated</div><div class="val" style="color:var(--forest)">' + s.automated + '</div><div class="sub">' + s.pct + '% of baseline · ' + s.total + ' total tracked</div></div>';
+  h += '<div class="kpi"><div class="bar" style="background:var(--goldenrod)"></div><div class="lbl">Pipeline</div><div class="val" style="color:var(--goldenrod-dark)">' + (s.manual + s.pending) + '</div><div class="sub">' + s.manual + ' manual · ' + s.pending + ' pending · ' + s.planned + ' planned</div></div>';
+  h += '</div>';
 
   // Progress
   var autoW = Math.min(s.pct, 100);
   var pendW = Math.min(pct(s.automated + s.pending, s.baseline), 100) - autoW;
-  html += '<div class="progress-panel">';
-  html += '<div class="title">Progress Toward Baseline (' + s.baseline + ')</div>';
-  html += '<div class="prog-label"><span><strong style="color:var(--forest)">' + s.automated + ' automated</strong> + ' + s.pending + ' pending of ' + s.baseline + '</span><strong style="color:var(--forest)">' + s.pct + '%</strong></div>';
-  html += '<div class="prog-track">';
-  html += '<div class="prog-fill" style="width:' + autoW + '%;background:var(--forest)"></div>';
-  html += '<div class="prog-fill" style="width:' + pendW + '%;background:var(--goldenrod);opacity:0.5"></div>';
-  html += '</div>';
-  html += '<div class="prog-legend"><span><i style="background:var(--forest)"></i>Automated</span><span><i style="background:var(--goldenrod);opacity:0.5"></i>Pending</span></div>';
-  html += '</div>';
+  h += '<div class="progress-panel"><div class="title">Progress Toward Baseline (' + s.baseline + ')</div>';
+  h += '<div class="prog-label"><span><strong style="color:var(--forest)">' + s.automated + ' automated</strong> + ' + s.pending + ' pending of ' + s.baseline + '</span><strong style="color:var(--forest)">' + s.pct + '%</strong></div>';
+  h += '<div class="prog-track"><div class="prog-fill" style="width:' + autoW + '%;background:var(--forest)"></div><div class="prog-fill" style="width:' + pendW + '%;background:var(--goldenrod);opacity:0.5"></div></div>';
+  h += '<div class="prog-legend"><span><i style="background:var(--forest)"></i>Automated</span><span><i style="background:var(--goldenrod);opacity:0.5"></i>Pending</span></div></div>';
 
-  // Category panels
-  html += '<div class="cat-grid">';
-
-  // Scenarios by group
-  html += '<div class="cat-panel"><div class="title">Scenarios by Group</div>';
+  // Categories
+  h += '<div class="cat-grid"><div class="cat-panel"><div class="title">Scenarios by Group</div>';
   for (var i = 0; i < groupNames.length; i++) {
-    var g = groupNames[i];
-    var d = s.groups[g];
-    var c = gc(g);
-    var aw = (d.automated / maxGrp) * 90;
-    var mw = (d.manual / maxGrp) * 90;
-    var pw = (d.pending / maxGrp) * 90;
-    html += '<div class="cat-row">';
-    html += '<div class="cat-lbl"><span style="color:' + c + ';font-weight:600">' + g + '</span><span>' + d.total + '</span></div>';
-    html += '<div class="cat-track">';
-    if (d.automated) html += '<div style="width:' + aw + '%;background:' + c + ';border-radius:4px 0 0 4px"></div>';
-    if (d.manual) html += '<div style="width:' + mw + '%;background:' + c + '44"></div>';
-    if (d.pending) html += '<div style="width:' + pw + '%;background:' + c + '22;border-right:2px dashed ' + c + '"></div>';
-    html += '</div></div>';
+    var g = groupNames[i], d = s.groups[g], c = gc(g);
+    h += '<div class="cat-row"><div class="cat-lbl"><span style="color:' + c + ';font-weight:600">' + g + '</span><span>' + d.total + '</span></div>';
+    h += '<div class="cat-track">';
+    if (d.automated) h += '<div style="width:' + (d.automated/maxGrp*90) + '%;background:' + c + ';border-radius:4px 0 0 4px"></div>';
+    if (d.manual) h += '<div style="width:' + (d.manual/maxGrp*90) + '%;background:' + c + '44"></div>';
+    if (d.pending) h += '<div style="width:' + (d.pending/maxGrp*90) + '%;background:' + c + '22;border-right:2px dashed ' + c + '"></div>';
+    h += '</div></div>';
   }
-  html += '<div class="cat-legend"><span><i style="background:var(--greystone)"></i>Automated</span><span><i style="background:rgba(118,118,118,0.27)"></i>Manual</span><span><i style="background:rgba(118,118,118,0.13);border:1px dashed var(--greystone)"></i>Pending</span></div>';
-  html += '</div>';
+  h += '<div class="cat-legend"><span><i style="background:var(--greystone)"></i>Automated</span><span><i style="background:rgba(118,118,118,0.27)"></i>Manual</span><span><i style="background:rgba(118,118,118,0.13);border:1px dashed var(--greystone)"></i>Pending</span></div></div>';
 
   // Automation rate
-  html += '<div class="cat-panel"><div class="title">Automation Rate by Group</div>';
+  h += '<div class="cat-panel"><div class="title">Automation Rate by Group</div>';
   for (var i = 0; i < groupNames.length; i++) {
-    var g = groupNames[i];
-    var d = s.groups[g];
-    var c = gc(g);
+    var g = groupNames[i], d = s.groups[g], c = gc(g);
     var rate = d.total > 0 ? Math.round((d.automated / d.total) * 100) : 0;
-    var rateColor = rate >= 60 ? 'var(--forest)' : rate >= 30 ? 'var(--goldenrod-dark)' : 'var(--brick)';
-    html += '<div class="cat-row">';
-    html += '<div class="cat-lbl"><span style="color:' + c + ';font-weight:600">' + g + '</span><span style="font-weight:600;color:' + rateColor + '">' + rate + '%</span></div>';
-    html += '<div class="cat-track"><div style="width:' + rate + '%;background:' + c + ';border-radius:4px;height:100%"></div></div>';
-    html += '</div>';
+    var rc = rate >= 60 ? 'var(--forest)' : rate >= 30 ? 'var(--goldenrod-dark)' : 'var(--brick)';
+    h += '<div class="cat-row"><div class="cat-lbl"><span style="color:' + c + ';font-weight:600">' + g + '</span><span style="font-weight:600;color:' + rc + '">' + rate + '%</span></div>';
+    h += '<div class="cat-track"><div style="width:' + rate + '%;background:' + c + ';border-radius:4px;height:100%"></div></div></div>';
   }
-  html += '</div></div>';
+  h += '</div></div>';
 
   // Scenario list
   var groupCounts = {};
-  for (var i = 0; i < DATA.length; i++) {
-    var g = getGroup(DATA[i]);
-    groupCounts[g] = (groupCounts[g] || 0) + 1;
-  }
+  for (var i = 0; i < DATA.length; i++) { var g = getGroup(DATA[i]); groupCounts[g] = (groupCounts[g] || 0) + 1; }
 
-  html += '<div class="list-section"><div class="list-toolbar">';
-  html += '<input class="search-input" type="text" placeholder="Search scenarios..." oninput="setSearch(this.value)" value="' + SEARCH_TERM + '">';
-  html += '<button class="filter-btn' + (ACTIVE_GROUP === 'All' ? ' active' : '') + '" data-group="All" onclick="setGroup(\'All\')">All<span class="ct">' + DATA.length + '</span></button>';
+  h += '<div class="list-section"><div class="list-toolbar">';
+  h += '<input class="search-input" type="text" placeholder="Search scenarios..." oninput="setSearch(this.value)" value="' + SEARCH_TERM + '">';
+  h += '<button class="filter-btn' + (ACTIVE_GROUP === 'All' ? ' active' : '') + '" data-group="All" onclick="setGroup(\'All\')">All<span class="ct">' + DATA.length + '</span></button>';
   for (var i = 0; i < groupNames.length; i++) {
     var g = groupNames[i];
     var escaped = g.replace(/'/g, "\\'");
-    html += '<button class="filter-btn' + (ACTIVE_GROUP === g ? ' active' : '') + '" data-group="' + g + '" onclick="setGroup(\'' + escaped + '\')">' + g + '<span class="ct">' + (groupCounts[g] || 0) + '</span></button>';
+    h += '<button class="filter-btn' + (ACTIVE_GROUP === g ? ' active' : '') + '" data-group="' + g + '" onclick="setGroup(\'' + escaped + '\')">' + g + '<span class="ct">' + (groupCounts[g] || 0) + '</span></button>';
   }
-  html += '</div><div id="listBody"></div></div>';
+  h += '</div><div id="listBody"></div></div>';
 
-  // Footer
-  html += '<div class="footer"><span>Copado Robotic Testing (CRT) · Live from Google Sheets</span><span>' + new Date().toLocaleDateString() + '</span></div>';
+  h += '<div class="footer"><span>Copado Robotic Testing (CRT) · Live from Google Sheets</span><span>' + new Date().toLocaleDateString() + '</span></div>';
 
-  document.getElementById('mainContent').innerHTML = html;
+  document.getElementById('mainContent').innerHTML = h;
   renderList();
 }
 
@@ -1001,16 +916,9 @@ function renderAll() {
 function renderList() {
   var body = document.getElementById('listBody');
   if (!body) return;
+  if (FILTERED.length === 0) { body.innerHTML = '<div class="empty">No scenarios match your filters</div>'; return; }
 
-  if (FILTERED.length === 0) {
-    body.innerHTML = '<div class="empty">No scenarios match your filters</div>';
-    return;
-  }
-
-  var arrow = function(col) {
-    if (SORT_COL !== col) return '';
-    return SORT_DIR === 1 ? ' ▲' : ' ▼';
-  };
+  var arrow = function(col) { return SORT_COL === col ? (SORT_DIR === 1 ? ' ▲' : ' ▼') : ''; };
 
   var t = '<table class="s-table"><thead><tr>';
   t += '<th onclick="setSort(\'Process Name / User Story\')">Process Name' + arrow('Process Name / User Story') + '</th>';
@@ -1024,28 +932,19 @@ function renderList() {
 
   for (var i = 0; i < FILTERED.length; i++) {
     var r = FILTERED[i];
-    var ex = getExec(r);
-    var risk = getRisk(r);
-    var pl = isPlanned(r);
-    var sprint = getVal(r, 'Sprint');
-    var sprintDisplay = '—';
-    if (sprint) {
-      sprintDisplay = sprint.indexOf('http') === 0
-        ? '<a href="' + sprint + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View</a>'
-        : sprint;
-    }
+    var ex = getExec(r), risk = getRisk(r), pl = isPlanned(r);
+    var sprint = gv(r, 'Sprint');
+    var sd = sprint ? (sprint.indexOf('http') === 0 ? '<a href="' + sprint + '" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View</a>' : esc(sprint)) : '—';
 
     t += '<tr class="' + (pl ? 'planned-row' : '') + '" onclick="showDetail(' + i + ')">';
-    t += '<td><strong>' + esc(getVal(r, 'Process Name / User Story')) + '</strong>' + (pl ? '<span class="badge badge-planned">PLANNED</span>' : '') + '</td>';
+    t += '<td><strong>' + esc(gv(r, 'Process Name / User Story')) + '</strong>' + (pl ? '<span class="badge badge-planned">PLANNED</span>' : '') + '</td>';
     t += '<td style="color:' + gc(getGroup(r)) + ';font-weight:600;font-size:12px">' + esc(getGroup(r)) + '</td>';
     t += '<td><span class="badge ' + execBadge(ex) + '">' + (ex || '—') + '</span></td>';
     t += '<td><span class="risk-dot ' + riskClass(risk) + '">' + (risk || '—') + '</span></td>';
     t += '<td style="font-size:12px">' + (getStatus(r) || '—') + '</td>';
     t += '<td style="font-size:12px">' + (getToDo(r) || '—') + '</td>';
-    t += '<td style="font-size:12px">' + sprintDisplay + '</td>';
-    t += '</tr>';
+    t += '<td style="font-size:12px">' + sd + '</td></tr>';
   }
-
   t += '</tbody></table>';
   body.innerHTML = t;
 }
@@ -1056,70 +955,43 @@ function renderList() {
 function showDetail(idx) {
   var r = FILTERED[idx];
   if (!r) return;
-
   document.getElementById('detGrp').textContent = getGroup(r);
-  document.getElementById('detTitle').textContent = getVal(r, 'Process Name / User Story');
+  document.getElementById('detTitle').textContent = gv(r, 'Process Name / User Story');
 
-  var ex = getExec(r);
-  var risk = getRisk(r);
+  var ex = getExec(r), risk = getRisk(r);
   var h = '';
 
-  // Badges
   h += '<div class="detail-badges">';
   h += '<span class="badge ' + execBadge(ex) + '">' + (ex || '—') + '</span>';
   if (isPlanned(r)) h += '<span class="badge badge-planned">PLANNED</span>';
   h += '<span class="risk-dot ' + riskClass(risk) + '" style="font-size:10px;width:auto;padding:4px 10px;border-radius:12px;">Risk: ' + (risk || '—') + '</span>';
   h += '</div>';
 
-  // Description
-  var desc = getVal(r, 'Description');
+  var desc = gv(r, 'Description');
   if (desc) h += '<div class="detail-desc">' + esc(desc) + '</div>';
 
-  // Test Steps
-  var steps = getVal(r, 'Test Steps');
-  if (steps) {
-    h += '<div class="detail-section"><h3>Test Steps</h3>';
-    h += '<div class="detail-steps">' + esc(steps) + '</div></div>';
-  }
+  var steps = gv(r, 'Test Steps');
+  if (steps) h += '<div class="detail-section"><h3>Test Steps</h3><div class="detail-steps">' + esc(steps) + '</div></div>';
 
-  // Risk Assessment
   h += '<div class="detail-section"><h3>Risk Assessment</h3><div class="detail-grid">';
-  h += '<div class="detail-field"><div class="df-label">Frequency of Use</div><div class="df-value">' + (getVal(r, 'Frequency of Use') || '—') + '</div></div>';
-  h += '<div class="detail-field"><div class="df-label">Business Impact</div><div class="df-value">' + (getVal(r, 'Business Impact') || '—') + '</div></div>';
-  h += '<div class="detail-field"><div class="df-label">Process Complexity</div><div class="df-value">' + (getVal(r, 'Process Complexity') || '—') + '</div></div>';
-  h += '<div class="detail-field"><div class="df-label">Technical Impact</div><div class="df-value">' + (getVal(r, 'Technical Impact') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Frequency of Use</div><div class="df-value">' + (gv(r, 'Frequency of Use') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Business Impact</div><div class="df-value">' + (gv(r, 'Business Impact') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Process Complexity</div><div class="df-value">' + (gv(r, 'Process Complexity') || '—') + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Technical Impact</div><div class="df-value">' + (gv(r, 'Technical Impact') || '—') + '</div></div>';
   h += '</div></div>';
 
-  // Workflow
   h += '<div class="detail-section"><h3>Workflow</h3><div class="detail-grid">';
   h += '<div class="detail-field"><div class="df-label">Status</div><div class="df-value">' + (getStatus(r) || '—') + '</div></div>';
   h += '<div class="detail-field"><div class="df-label">To Do</div><div class="df-value">' + (getToDo(r) || '—') + '</div></div>';
   h += '<div class="detail-field"><div class="df-label">Execution</div><div class="df-value">' + (ex || '—') + '</div></div>';
-
-  var sprint = getVal(r, 'Sprint');
-  var sprintVal = '—';
-  if (sprint) {
-    sprintVal = sprint.indexOf('http') === 0
-      ? '<a href="' + sprint + '" target="_blank">View Sprint</a>'
-      : sprint;
-  }
-  h += '<div class="detail-field"><div class="df-label">Sprint</div><div class="df-value">' + sprintVal + '</div></div>';
+  h += '<div class="detail-field"><div class="df-label">Sprint</div><div class="df-value">' + linkOrText(gv(r, 'Sprint'), 'View Sprint') + '</div></div>';
   h += '</div></div>';
 
-  // References
-  var workId = getVal(r, 'Work ID');
-  var notes = getVal(r, 'Notes');
+  var workId = gv(r, 'Work ID'), notes = gv(r, 'Notes');
   if (workId || notes) {
     h += '<div class="detail-section"><h3>References</h3><div class="detail-grid">';
-    if (workId) {
-      var wVal = workId.indexOf('http') === 0
-        ? '<a href="' + workId + '" target="_blank">Open in CRT</a>'
-        : workId;
-      h += '<div class="detail-field"><div class="df-label">Work ID</div><div class="df-value">' + wVal + '</div></div>';
-    }
-    if (notes) {
-      h += '<div class="detail-field"><div class="df-label">Notes</div><div class="df-value">' + esc(notes) + '</div></div>';
-    }
+    if (workId) h += '<div class="detail-field"><div class="df-label">Work ID</div><div class="df-value">' + linkOrText(workId, 'Open in CRT') + '</div></div>';
+    if (notes) h += '<div class="detail-field"><div class="df-label">Notes</div><div class="df-value">' + esc(notes) + '</div></div>';
     h += '</div></div>';
   }
 
@@ -1128,19 +1000,27 @@ function showDetail(idx) {
   document.body.style.overflow = 'hidden';
 }
 
+function openForm() {
+  document.getElementById('formFrame').src = 'https://docs.google.com/forms/d/e/1FAIpQLSdiK9gR4gChrSv3VJzrKiJkzE0eu7IkobhoF9R4jCG5LlBSeg/viewform?embedded=true';
+  document.getElementById('formOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeForm() {
+  document.getElementById('formOverlay').classList.remove('open');
+  document.getElementById('formFrame').src = '';
+  document.body.style.overflow = '';
+}
+
 function closeDetail() {
   document.getElementById('detailOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeDetail();
-});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDetail(); });
 
-// Auto-load on page open
-window.addEventListener('DOMContentLoaded', function() {
-  loadData();
-});
+/* Auto-load */
+window.addEventListener('DOMContentLoaded', function() { loadData(); });
 </script>
 </body>
 </html>
