@@ -494,7 +494,7 @@ function renderList(){
     const risk=getRisk(r);
     const pl=isPlanned(r);
     const badgeCls=ex==='Automated'?'badge-auto':ex==='Pending'?'badge-pending':'badge-manual';
-    const riskCls=risk>=3?'risk-high':risk>=2.75?'risk-med':'risk-low';
+    const riskCls=risk>=2.5?'risk-high':risk>=1.75?'risk-med':'risk-low';
     const sprint=(r['Sprint']||'').trim();
     const sprintDisplay=sprint?(sprint.startsWith('http')?'<a href="'+sprint+'" target="_blank" onclick="event.stopPropagation()" style="color:var(--lake)">View</a>':sprint):'—';
 
